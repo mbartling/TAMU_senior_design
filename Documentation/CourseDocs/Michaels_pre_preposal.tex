@@ -1,0 +1,241 @@
+\documentclass[11pt,letterpaper,titlepage]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{program}
+\usepackage{wrapfig}
+\renewcommand{\thesection}{\Roman{section}}
+\renewcommand{\thesubsection}{\Alph{subsection}}
+
+\newcommand{\mytoday}{October 9, 2013}
+\newcommand{\TAMU}{Texas A\&M}
+\author{
+\begin{LARGE}
+\textbf{Design Pre-Proposal} 
+\end{LARGE}\\
+\mytoday \\ \\
+ECEN 403 - Senior Design Project\\
+\TAMU University, College Station, TX \\ \\
+\teamno\\ 
+Michael Bartling \\
+}
+\newcommand{\teamno}{Team05}
+\title{
+\begin{LARGE}
+\textbf{Mission Planning of Autonomous Systems Using RF Landscapes}
+\end{LARGE}
+}
+\pagestyle{fancy}
+\rhead{Bartling, Michael \thepage}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\textbf{Note:} This document contains information about the quad-copter, microcontroller, and mapping algorithm subsystems.\\
+
+\noindent
+In this faculty-sponsored project, an autonomous quad-copter will fly around a predefined \textit{playing field} and attempt to reconstruct a map of the RF landscape. There are 3 primary guidelines for this system: 
+\begin{enumerate}
+\item The design must use components which the sponsoring faculty's lab officially supports\cite{arducopter_ref}\cite{teensy_ref}\cite{xbee_ref}\cite{nuc_ref} 
+\item The project goal is research oriented; The core subsystems should be modular allowing researchers to design and test algorithms and subsystems without concern for system integration.
+\item The prototype system must include example mapping and routing algorithms and must communicate with a remote server over Wifi.
+\end{enumerate}
+
+\noindent
+The quad-copter subsystem is based on open source Arducopter\cite{arducopter_ref} designs and has  support for GPS way point navigation, automatic IMU stabilization, Wifi connectivity, and real time flight data. The quad-copter subsystem must synchronize with a Teensy 2.0++ (AT90USB1286 8 bit AVR 16 MHz Processor) microcontroller \cite{teensy_ref} over UART, SPI, or Wifi before attempting to post GPS coordinates to the remote server (an Intel NUC\cite{nuc_ref}). The wireless transceivers are XBee S6 Wifi controllers running IEEE 802.15.4 low power sensor network stack in API mode 2. These radios will help with both communication and RSSI acquisition.\\ 
+
+\noindent
+The proposed mapping algorithm will attempt to locate the local maximum of each ground transmitter in approximately linear time. Basically, the algorithm samples data along a linear path, finds the maximum value and then the next path is the line normal to the current path at the local max. Eventually the algorithm will form a sufficiently small \textit{box} around the area of maximum RSSI (assumed to be the transmitter source). For isotropic radiators where the source resides inside a known space, initial simulations converge on source location $\approx 100\%$ of the time (for large number of iterations).  
+
+
+
+
+
+
+\end{abstract}
+
+\begin{onehalfspace}
+\section{Introduction}
+\subsection{Project Overview}
+\noindent
+Fundamentally, the Mission Planning of Autonomous Systems using RF Landscapes defines a \textit{research-oriented} project framework consisting of 1) an autonomous vehicle, 2) a sensor package 3) a Microcontroller sensor network 4) remote server and 5) function templates for data processing and visualization algorithms. In this project, a sensor package on an autonomous quad-copter (the vehicle) collects and posts (RSSI data, GPS coordinates) data pairs to a remote mySQL server for processing, see (1).\\ 
+
+\begin{wrapfigure}{r}{0.6\textwidth}
+\label{fig:systemSketch}
+\centering
+\includegraphics[width=0.48\textwidth]{Drawing2.PNG}
+\caption{Rough Sketch of system and \textit{Game}}
+\end{wrapfigure}
+
+\noindent
+In the first phase of the game, the quad-copter runs our mapping algorithm to get an initial acquisition of the game field. Given enough iterations, our mapping algorithm will deterministically locate a volume with high probability of being the transmission source while simultaneously profiling the sources transmission pattern. This data is processed on the server and then passed as inputs to the routing algorithm which tries to plan a route of optimal RF exposure. Here optimal RF exposure means maximizing RSSI and received packet count from \textit{good} ground nodes while minimizing RSSI and received packet counts from the \textit{bad} ground nodes. In the second phase of the game, the quad-copter will follow the generated path, sample data, and post the data to the mySQL server. Finally, the data from Phase 1 and Phase 2 will be used to generate a heat map of the RF landscape.  
+
+
+
+\subsection{Problem Statement}
+Ultimately, the goal of this project is to reconstruct a map of a sparse radio frequency (RF) landscape such that an autonomous vehicle can determine the optimal RF exposure route through the playing field. The purpose of this project, however, is to design a system framework for autonomous mission planning where the subsystems are modular. In other words, we can treat the core subsystems as \textit{Plug and Play} devices or as template classes in C++. 
+
+\subsection{Proposed System Diagrams}
+\begin{wrapfigure}{rth}{0.55\textwidth}
+
+\centering
+\includegraphics[width=0.45\textwidth]{BetterBlockDiagram.PNG}
+\caption{Functional Block Diagram of Autonomous Mission Planning System}
+\end{wrapfigure}
+
+\section{Proposed Subsystem: Quad-Copter}
+\subsection{Subsystem Overview}
+The sponsoring faculty requested we use the open source Arducopter platform. Arducopter includes reference designs and software libraries which help streamline the development process. In this project, nearly all of quad-copter subsystem will use example designs and subroutines in the Arducopter libraries, so all we need to do is 3D print and assemble the quad-copters and then configure the software to synchronize both time and GPS data with the across the microcontroller and server subsystems. 
+
+\subsection{Analysis of Design Concepts}
+Since this project is primarily research based and not device design based it makes sense to leverage as much of the Arducopter designs as possible. In fact, most of the quad-copter subsystem has already been assembled (example of finished subsystem in (3)). On the software side, Arducopter has a series of well developed autonomous operation routines and hardware abstraction layer (HAL) drivers. One of the pre-built autonomous programs lets users input way point coordinates to the quad-copter which will then travel to these locations while simultaneously broadcasting sensor information. In addition, the Arducopter will automatically account for GPS drift, packetize the sensor information into either IEEE 802.11 or IEEE 802.15.4 packet frame definitions, and implement any user defined application protocols. Ultimately, this means that the quad-copter software debugging is straightforward and that the software development time should be minimal. Furthermore, this simple way-point based program should complement our mapping algorithm (See Proposed System: Mapping Algorithm[s]).
+
+\begin{wrapfigure}{r}{0.55\textwidth}
+
+\centering
+\includegraphics[width=0.45\textwidth]{quadcopter_end.jpg}
+\caption{Example of completed quad-copter subsystem}
+\end{wrapfigure}
+ 
+ 
+\section{Proposed Subsystem: Microcontroller}
+\subsection{Subsystem Overview}
+The microcontroller subsystem is based on the Teensy 2.0 ++ (based on the Atmel AT90USB1286 8 bit AVR 16 MHz Processor) running Teensyduino. The Teensy relays information from the sensor package to the server and/or quad-copter via Xbee S6 Wifi controllers. This information is sent as IEEE 802.15.4 (low power wireless protocol for sensor networks) packets. The current sensor package will gather relevant channel parameters and received signal strength indicator (RSSI) information. 
+\subsection{Analysis of Design Concepts}
+In this design, the Teensy primarily acts as a control path manager/arbiter. Basically the Teensy will attempt to synchronize clock domains with the server and quad-copter and send this time offset along with the relevant sensor data. Each sensor reading is delimited by a known character byte before forming the packet payload. By pre-pending a character such as 'R' for RSSI or 'G' for GPS, we make it easier for the server to parse packets for relevant information. The Xbee S6 Wifi modules have API mode 2 enabled (carriage return support) which moves some of the frame creation over to software. We need to enable API mode 2 for several reasons, but ultimately, if the Xbee radios are not in API mode 2 then they cannot gather RSSI data nor can they address more then one destination address. In fact, if the radios are not in one of the API modes then their destination address is fixed and can only communicate with one known destination address (or broadcast to all available addresses).\\ 
+
+\noindent
+For our mapping algorithms and routing algorithms to work, we require each antenna be (roughly) distinguishable and on separate channels. Separating the antennas into groups of channels or addresses improves the portability and scalability of the system because a system operating on one group of RF fields should also work for an arbitrary number of groups.   
+
+\pagebreak
+\section{Proposed Subsystem: Mapping Algorithm[s]}
+\subsection{Subsystem Overview}
+\textbf{Brief:} The mapping algorithm will get initial acquisition of the RF landscape given limited flight time and sample rate. This initial map will be pre-processed and fed to the routing and visualization systems.\\
+
+\noindent 
+There are two possible types of mapping algorithms to consider\- static algorithms and dynamic algorithms. Here, static algorithms imply that the end user must pre-define all of the waypoint coordinates used in the mapping algorithm. In general, static mapping algorithms are fairly easy to implement, quick to compute, and can give a reasonable estimate towards locating RF source and null regions. Static algorithms, unfortunately, also have limited spatial resolution which makes them ill-suited for characterizing highly directional landscapes\footnote{Generally, RSSI values are treated as a either a point-volume approximation or envelope of some random noise distribution. This makes it rather difficult to characterize beam shapes and direction.}. We therefore propose a new dynamic mapping algorithm we call YonderWay. YonderWay is a stateless, real-time algorithm which can accurately reconstruct the RF landscape around an unknown transmitter while simultaneously searching for a pseudo-global maximum in a given channel (4).
+
+\begin{wrapfigure}{r}{0.55\textwidth}
+\centering
+\includegraphics[width=0.45\textwidth]{YonderWayFlowchart.png}
+\caption{Simplified YonderWay Algorithmic State Machine}
+\end{wrapfigure}
+
+\subsection{Analysis of YonderWay13 Design Concepts}
+
+YonderWay is highly efficient computationally and inherently robust to system noise. The basic algorithm is very simple; given two end points, follow arbitrary path from start to end points (approximating a line segment) and without stopping keep track max RSSI region while streaming RSSI measurements and GPS coordinates to the server. If the quad-copter reaches the specified end point, reaches the end of the game map, or travels beyond a given threshold send the vehicle back to the region of maximum RSSI and have it follow a shortened line segment perpendicular to the current path at the local RSSI max. Finally, repeat N times or until confidence of source location reaches pre-defined threshold.\\
+
+\noindent
+In addition, we keep track of the previous iterations local maximum location which becomes a factor in the perpendicular line calculation. The perpendicular line transformation is very simple, and can be calculated directly using weighted rotation matrices using . 
+\begin{equation}
+\left(\begin{matrix}
+NewPath_x & *  \\ 
+* & NewPath_y
+\end{matrix} 
+\right)
+=
+\left(\begin{matrix}
+1 & cos(\theta) \\ 
+1 & sin(\theta) 
+\end{matrix} \right)
+\left(\begin{matrix}
+1 & 0 \\ 
+0 & \frac{1}{2} 
+\end{matrix}\right)
+\left(
+\begin{matrix}
+Path_x & Path_y \\ 
+LocMax_x & LocMax_y
+\end{matrix} 
+\right)
+\end{equation}
+Where $$\theta = atan2(\Delta_{LocalMax_Y}, \Delta_{LocalMax_X})$$
+Here, $\theta$ is the relative angle between the local maxima with quadrant information. The first matrix is the current path coordinates and local max coordinates, $\Delta_{Coordinate}$ = the new local max - the old local max, and the second matrix is simply the rotation matrix.
+
+\noindent
+Figure (5) shows an example call to a YonderWay routine in MATLAB and (6) in the Appendix shows the results of 7000 Monte-Carlo simulations of YonderWay. The Monte-Carlo simulations varied parameters such as position noise, path iteration attenuation, random antenna location, and number of samples per path. In Figure (6), we find that given just 3 iterations, YonderWay has correctly located the antenna source with $\approx98.6\%$ Confidence; in other words, the quad-copter was within $1-0.986 = 1.4\%$ of one unit of distance from the antenna source. Note, this unit of distance is arbitrary and scales linearly with the game field size.
+\begin{wrapfigure}{lc}{0.7\textwidth}
+\centering
+\includegraphics[width=0.6\textwidth]{ExampleYonderWayOutput.png}
+\caption{Example of Source location and
+ RF Landscape Reconstruction using YonderWay algorithm}
+ Note, Contour plot at the top depicts actual RF Field. As you can see, YonderWay can regenerate this field map.
+\end{wrapfigure}
+
+\end{onehalfspace} 
+\pagebreak
+\begin{thebibliography}{9}
+
+\bibitem{arducopter_ref}
+  \emph{Arducopter Project}.
+  June 2013,
+  https://code.google.com/p/arducopter/.
+
+\bibitem{teensy_ref}
+  Paul Stoffregen, Robin Coon.
+  \emph{Teensy project, PJRC}.
+  2013,
+  www.pjrc.com.
+  
+\bibitem{xbee_ref}
+  Digi Inc.
+  \emph{Xbee Wi-fi: Embedded Wi-Fi for OEMs}.
+  2013, 
+  http://www.digi.com/products/wireless-wired-embedded-solutions/zigbee-rf-modules/point-multipoint-rfmodules/xbee-wi-fi.
+  
+\bibitem{nuc_ref}
+	Intel Inc.
+	\emph{Intel NUC}.
+	2013,
+	http://www.intel.com/content/www/us/en/motherboards/desktop-motherboards/nuc.html.
+\bibitem{rotMatrix_ref}
+	Weisstein, Eric W. \emph{Rotation Matrix}.
+	From MathWorld--A 	Wolfram Web Resource. http://mathworld.wolfram.com/RotationMatrix.html
+\end{thebibliography}
+
+\section{Appendix}
+
+
+\begin{wrapfigure}{l}{0.95\textwidth}
+\caption{Results of 7000 Monte-Carlo Simulations of YonderWay Algorithm given limited number of iterations}
+\centering
+\includegraphics[width=0.95\textwidth]{YonderWay_MonteCarloResults.png}
+\end{wrapfigure}
+
+\begin{wrapfigure}{l}{0.95\textwidth}
+\caption{Simulation of game field: Contour Map of Antenna RSSI}
+\centering
+\includegraphics[width=0.95\textwidth]{contourantennamap.png}
+Note, is different RF landscape from Figure 5
+\end{wrapfigure}
+
+
+%\pagebreak
+%\newpage
+%\begin{thebibliography}{9}
+%
+%\bibitem{arducopter_ref}
+%  \emph{Arducopter Project}.
+%  June 2013,
+%  https://code.google.com/p/arducopter/.
+%
+%\bibitem{teensy_ref}
+%  Paul Stoffregen, Robin Coon.
+%  \emph{Teensy project, PJRC}.
+%  2013,
+%  www.pjrc.com.
+%  
+%\bibitem{xbee_ref}
+%  Digi Inc.
+%  \emph{Xbee Wi-fi: Embedded Wi-Fi for OEMs}.
+%  2013,
+%  http://www.digi.com/products/wireless-wired-embedded-solutions/zigbee-rf-modules/point-multipoint-rfmodules/xbee-wi-fi.
+%\end{thebibliography}
+
+\end{document}
+
