@@ -1,4 +1,4 @@
-%%Example RF Field Map Generator
+%% Example RF Field Map Generator
 % Myles Foreman
 % Fall 2013
 % Currently generates isotropic radiation sources.
