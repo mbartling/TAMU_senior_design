@@ -1,0 +1,41 @@
+#include <RX_API.h>
+
+/**
+ * \brief Parse received frames for known packet protocols
+ * \
+ * \param 
+ */
+ 
+void Xbee_HandleRxAPIFrame(_apiFrameUnion * apiFramePtr, _apiFrame64bit * apiFrame64bitPtr )
+{
+    switch(apiFramePtr->api_id)
+    {
+        case RX_RF_DATA_FRAME:
+            /* process recieved Data Frames */
+            uint8_t * baseDataPtr = &( apiFramePtr->api_fd );
+            apiFrame64bitPtr->api_id = apiFramePtr->api_id;
+            apiFrame64bitPtr->api_src_address   = (uint64_t)baseDataPtr[RX_RF_ADDR_OFFSET];
+            apiFrame64bitPtr->api_RSSI          = (uint8_t )baseDataPtr[RX_RF_RSSI_OFFSET];
+            
+            
+            //find length of data from offsets
+            for(i = 0; i < RX_RF_MAX_PAYLOAD_SIZE; i++)
+             {
+                /* Fill our payload */
+                apiFrame64bitPtr->api_payload[i] = (uint8_t )baseDataPtr[RX_RF_DATA_OFFSET+i];
+                
+             } // End for(i = 0; i < RX_RF_MAX_PAYLOAD_SIZE; i++)
+ 
+            apiFrame64bitPtr->api_src_address    = (uint64_t )baseDataPtr[RX_RF_ADDR_OFFSET];
+             
+          /* Can add other Frame protocols here */
+//        case RX_IO_SAMPLE_FRAME:
+
+          /* For all frame protocols not specified, do the default NOTHING*/
+        default:
+            //Discard all of the other frames because they are not worthy 
+            break /* into dance */;
+ 
+    }
+ 
+}
