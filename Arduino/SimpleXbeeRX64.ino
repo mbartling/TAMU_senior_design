@@ -1,6 +1,6 @@
 /**
  * \author Michael Bartling bart4128@tamu.edu
- * \author Rabih Abifaraj   
+ * \author Rabih Abifaraj   rabifaraj@tamu.edu
  * \date 11/4/2013
  * \version 1.0
  * 
