@@ -22,7 +22,7 @@ uint8_t  lengthSegHigh;
 uint8_t  lengthSegLow;
 
 // We only get one LED to play with
-int statusLed 	 = 6;
+int statusLed 	   = 6;
 int errorLed 	   = 6;
 
 HardwareSerial Uart = HardwareSerial();
