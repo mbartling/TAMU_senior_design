@@ -1,3 +1,12 @@
+/**
+ * \author Michael Bartling bart4128@tamu.edu
+ * \author Rabih Abifaraj   
+ * \date 11/4/2013
+ * \version 1.0
+ * 
+ * \copyright The MIT License (MIT)
+ */
+
 #include <Xbee_wifi_RX_API.h>
 #define INPUT  /*Input*/
 #define OUTPUT /*Output*/
