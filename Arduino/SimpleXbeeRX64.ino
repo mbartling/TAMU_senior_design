@@ -1,4 +1,4 @@
-#include "./../Xbee/RX_API.h"
+#include "./../Xbee/Xbee_wifi_RX_API.h"
 #include <Xbee.h>
 
 #define BAUD_RATE 9600
