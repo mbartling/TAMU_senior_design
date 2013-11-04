@@ -4,8 +4,8 @@
 /**
  * \brief Parse received frames for known packet protocols
  * \note Currently this code only supports RX64 frames: see Digi Xbee S6 User Guide 
- * \param INPUT _apiFrameUnion * apiFramePtr input a raw api frame to be parsed
- * \param OUTPUT _apiFrame64bit * apiFrame64bitPtr output a struct of parsed API mode 2 frame data
+ * @param[in] _apiFrameUnion * apiFramePtr input a raw api frame to be parsed
+ * @param[out] _apiFrame64bit * apiFrame64bitPtr output a struct of parsed API mode 2 frame data
  */
  
 void Xbee_HandleRxAPIFrame( INPUT _apiFrameUnion * apiFramePtr, OUTPUT _apiFrame64bit * apiFrame64bitPtr )
