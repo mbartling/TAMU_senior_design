@@ -1,19 +1,21 @@
 #include <RX_API.h>
-
+#define INPUT  /*Input*/
+#define OUTPUT /*Output*/
 /**
  * \brief Parse received frames for known packet protocols
- * \
- * \param 
+ * \note Currently this code only supports RX64 frames: see Digi Xbee S6 User Guide 
+ * \param INPUT _apiFrameUnion * apiFramePtr input a raw api frame to be parsed
+ * \param OUTPUT _apiFrame64bit * apiFrame64bitPtr output a struct of parsed API mode 2 frame data
  */
  
-void Xbee_HandleRxAPIFrame(_apiFrameUnion * apiFramePtr, _apiFrame64bit * apiFrame64bitPtr )
+void Xbee_HandleRxAPIFrame( INPUT _apiFrameUnion * apiFramePtr, OUTPUT _apiFrame64bit * apiFrame64bitPtr )
 {
     switch(apiFramePtr->api_id)
     {
         case RX_RF_DATA_FRAME:
             /* process recieved Data Frames */
-            uint8_t * baseDataPtr = &( apiFramePtr->api_fd );
-            apiFrame64bitPtr->api_id = apiFramePtr->api_id;
+            uint8_t * baseDataPtr               = &( apiFramePtr->api_fd );
+            apiFrame64bitPtr->api_id            =    apiFramePtr->api_id  ;
             apiFrame64bitPtr->api_src_address   = (uint64_t)baseDataPtr[RX_RF_ADDR_OFFSET];
             apiFrame64bitPtr->api_RSSI          = (uint8_t )baseDataPtr[RX_RF_RSSI_OFFSET];
             
@@ -36,6 +38,6 @@ void Xbee_HandleRxAPIFrame(_apiFrameUnion * apiFramePtr, _apiFrame64bit * apiFra
             //Discard all of the other frames because they are not worthy 
             break /* into dance */;
  
-    }
+    } // END Xbee_HandleRxAPIFrame
  
 }
