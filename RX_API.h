@@ -1,4 +1,6 @@
-#ifndef RX_API_h
+#ifndef XBEE_WIFI_RX_API_H
+#define XBEE_WIFI_RX_API_H
+
 #include <stdint.h>
  
 #define RF_RESERVED              0x00           /* To be implemented Later  */
@@ -18,41 +20,37 @@
 #define RX_RF_DATA_OFFSET        14 - 1
  
 /**
- *
- *
- *
- *
+ * \brief apiFrameUnion contains the raw api frame data.
+ * The basic formation of the api frame is done in the receiver function.
  *
  */ 
 typedef struct apiFrameUnion
 {
-    uint16_t api_length;
-    uint8_t  api_id;
-    uint8_t  api_fd[RX_RF_MAX_FD_SIZE];
+    uint16_t api_length;                  /**< The length of frame we're operating on */
+    uint8_t  api_id;                      /**< The type of frame we're operating on   */
+    uint8_t  api_fd[RX_RF_MAX_FD_SIZE];   /**< The frame data                         */
  
 } _apiFrameUnion;
  
  
 /**
- * /brief 
+ * \brief RX64 api frame data
+ * Passed around for easy access of api frame data
  * 
- *
- *
- *
  */  
 typedef struct apiFrame64bit
 {
-//    uint8_t  api_sf     = 0x7E;
-//    uint16_t api_length;
-    uint8_t  api_id;
-    uint64_t api_src_address;
-    uint8_t  api_RSSI;
-    uint8_t  api_opt;//     = RX_RF_OPTION;
-    uint8_t  api_payload[RX_RF_MAX_PAYLOAD_SIZE];
+//    uint8_t  api_sf     = 0x7E;                 /* Not used */
+//    uint16_t api_length;                        /* Not used */
+    uint8_t  api_id;                              /**< The type of frame we're operating on   */
+    uint64_t api_src_address;                     /**< Who did we receive the packet from     */
+    uint8_t  api_RSSI;                            /**< The Received Signal Strength Indicator */
+    uint8_t  api_opt;                             //= RX_RF_OPTION;
+    uint8_t  api_payload[RX_RF_MAX_PAYLOAD_SIZE]; /**< The actual packet payload*/
  
  
 } _apiFrame64bit;
  
 void Xbee_HandleRxAPIFrame(_apiFrameUnion * apiFramePtr, _apiFrame64bit * apiFrame64bitPtr );
  
-#endif
+#endif /* XBEE_WIFI_RX_API_H */
