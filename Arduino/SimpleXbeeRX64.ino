@@ -1,7 +1,7 @@
 /**
  * \author Michael Bartling bart4128@tamu.edu
  * \author Rabih Abifaraj   rabifaraj@tamu.edu
- * \date 11/4/2013
+ * \date 11/8/2013
  * \version 1.0
  * 
  * \copyright The MIT License (MIT)
@@ -26,6 +26,8 @@ int statusLed 	   = 6;
 int errorLed 	   = 6;
 
 HardwareSerial Uart = HardwareSerial();
+
+void simpleXbeeRead();
 
 void setup()
 {
@@ -52,10 +54,27 @@ void flashLed(int pin, int times, int wait) {
 	}
 }
 
+
 void loop()
 {
-	//prolly needs to analogRead()
-	if(Uart.available() >= 21) //mae sure we have enough or a mouthful of data
+	//Do other functions here
+	//
+	
+	simpleXbeeRead();
+	flashLed(statusLed, 1, 100);
+
+}
+
+/**
+ * \brief Simple Arduino Xbee Read function
+ * Make sure enough data received on buffer and then when a start frame is received (0x7E) begin forming dummy packet.
+ *
+ *
+ */
+void simpleXbeeRead()
+{
+	//Begin Actual read 
+	if(Uart.available() > 20) //Get at least something in the buffer
 	{
 	  /* 7E is the start frame of our packet */
 		if(Uart.read()==0x7E)
@@ -83,8 +102,6 @@ void loop()
 		Serial.println(apiFrame64bitPtr->api_RSSI);
 
 	}
-	
-	flashLed(statusLed, 1, 100);
 
 }
 
