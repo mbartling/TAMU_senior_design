@@ -19,11 +19,12 @@
  
 void Xbee_HandleRxAPIFrame( INPUT _apiFrameUnion * apiFramePtr, OUTPUT _apiFrame64bit * apiFrame64bitPtr )
 {
+    uint8_t * baseDataPtr;
     switch(apiFramePtr->api_id)
     {
         case RX_RF_DATA_FRAME:
             /* process recieved Data Frames */
-            uint8_t * baseDataPtr               = &( apiFramePtr->api_fd );
+            baseDataPtr                         = &( apiFramePtr->api_fd );
             apiFrame64bitPtr->api_id            =    apiFramePtr->api_id  ;
             apiFrame64bitPtr->api_src_address   = (uint64_t)baseDataPtr[RX_RF_ADDR_OFFSET];
             apiFrame64bitPtr->api_RSSI          = (uint8_t )baseDataPtr[RX_RF_RSSI_OFFSET];
