@@ -10,6 +10,8 @@ int main(void)
 
 	uart_init(BAUD_RATE);
 
+	usb_init();
+
 	printf("Starting the example\n");
 
 	while(1)
@@ -23,9 +25,11 @@ int main(void)
 
 		if(usb_serial_available())
 		{
-			c = uart_getchar();
-			usb_serial_putchar(c);
+			c = usb_serial_getchar();
+			uart_putchar(c);
 		}
+
+		// Read sensors here and process.
 
 	}
 }
