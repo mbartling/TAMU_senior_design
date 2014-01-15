@@ -34,8 +34,8 @@
 #define TX_RF_FRID_OFFSET        4
 #define TX_RF_ADDR_OFFSET        5
 #define TX_RF_OPTI_OFFSET        13
-//#define TX_RF_DATA_OFFSET        14
-#define TX_RF_DATA_OFFSETS        14
+#define TX_RF_DATA_OFFSET        14
+
  
 /**
  * \brief apiFrameUnion contains the raw api frame data.
