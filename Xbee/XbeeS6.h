@@ -5,11 +5,11 @@
 #include "general_debug.h"
 #include <vector>
 #include <string.h>
-enum
-{
-	BIG_ENDIAN,
-	LITTLE_ENDIAN
-};
+
+#define TX_BUFFER_SIZE 512
+
+/* Separate the tx_buffer so we do not need to handle the streaming functions in the class*/
+uint8_t tx_buffer[TX_BUFFER_SIZE];
 
 typedef struct Address64
 {
@@ -39,8 +39,10 @@ class Tx64Packet
 		int calc_chkSum();
 		int set_Address(uint64_t new_address);
 		uint64_t get_Address();
+//		unsigned long int get_Address();
 
-		friend ostream& operator<<(ostream& os, const Tx64Packet& packet);
+		void push_back(uint8_t byteMe);
+		std::ostream& operator<<(std::ostream& os, const Tx64Packet& packet);
 };
 
 

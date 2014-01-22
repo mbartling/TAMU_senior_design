@@ -2,6 +2,10 @@
 #define BYTE_MASK(inVal, offset) (uint8_t)((inVal >> offset) & 0xFF)
 
 int the_endianness;
+enum {
+	BIG_ENDIAN,
+	LITTLE_ENDIAN
+};
 
 
 /* This will help with debugging */
@@ -39,6 +43,32 @@ int Tx64Packet::set_Address(uint64_t new_address)
 	 */
 }
 
+int Tx64Packet::calc_chkSum()
+{
+	uint8_t sum;
+
+	sum += sf;
+	sum += (length & 0xFF) + ((length >> 8) & 0xFF);
+	sum += API_frame_id;
+	sum += seqno;
+	sum += dst_address.b0;
+	sum += dst_address.b1;
+	sum += dst_address.b2;		
+	sum += dst_address.b3;		
+	sum += dst_address.b4;		
+	sum += dst_address.b5;		
+	sum += dst_address.b6;		
+	sum += dst_address.b7;
+	sum += tx_opts;
+
+	for(std::vector<uint8_t>::iterator it = payload.begin(); it != payload.end(); ++it)
+	{
+		sum += *it;
+	}
+
+	return sum;
+}
+
 uint64_t Tx64Packet::get_Address()
 {
 	uint64_t temp;
@@ -52,13 +82,25 @@ uint64_t Tx64Packet::get_Address()
 	return temp;
 }
 
-Tx64Packet::ostream& operator<<(ostream& os, const Tx64Packet& packet)
+std::ostream& Tx64Packet:: operator <<(std::ostream& os, const Tx64Packet& packet)
 {
+	//uint64_t temp = packet.get_Address();
 	os<<packet.sf;
 	os<<packet.length;
 	os<<packet.API_frame_id;
 	os<<packet.seqno;
-	os<<packet.get_Address(); //dst_address;
+
+	//os<< temp;//dst_address;
+	/* Write out the Address */
+	os<<packet.dst_address.b0;
+	os<<packet.dst_address.b1;
+	os<<packet.dst_address.b2;
+	os<<packet.dst_address.b3;
+	os<<packet.dst_address.b4;
+	os<<packet.dst_address.b5;
+	os<<packet.dst_address.b6;
+	os<<packet.dst_address.b7;
+
 	os<<packet.tx_opts;
 	for(std::vector<uint8_t>::iterator it = packet.payload.begin(); it != packet.payload.end(); ++it)
 	{
@@ -67,4 +109,9 @@ Tx64Packet::ostream& operator<<(ostream& os, const Tx64Packet& packet)
 	os<<packet.checksum;
 
 	return os;
+}
+
+void Tx64Packet::push_back(uint8_t byteMe) {
+
+	payload.push_back(byteMe);
 }
