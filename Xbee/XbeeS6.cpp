@@ -3,6 +3,7 @@
 
 int the_endianness;
 
+
 /* This will help with debugging */
 int check_endianness()
 {
@@ -21,7 +22,35 @@ int check_endianness()
 	}
 }
 
+int Tx64Packet::set_Address(uint64_t new_address)
+{
+	dst_address.b0 = BYTE_MASK(new_address, 0);
+	dst_address.b1 = BYTE_MASK(new_address, 8);
+	dst_address.b2 = BYTE_MASK(new_address, 16);
+	dst_address.b3 = BYTE_MASK(new_address, 24);
+	dst_address.b4 = BYTE_MASK(new_address, 32);
+	dst_address.b5 = BYTE_MASK(new_address, 40);
+	dst_address.b6 = BYTE_MASK(new_address, 48);
+	dst_address.b7 = BYTE_MASK(new_address, 56);
 
+	return dst_address.b0 + dst_address.b1 + dst_address.b2 + dst_address.b3 + dst_address.b4 + dst_address.b5 + dst_address.b6 + dst_address.b7;
+	/*
+	   dst_address = {new_address};
+	 */
+}
+
+uint64_t Tx64Packet::get_Address()
+{
+	uint64_t temp;
+	if(sizeof(temp) != sizeof(dst_address))
+	{
+		PRINTF("Size of Address do not match!\n");
+		return -1;
+	}
+
+	memcpy(&temp, &dst_address, sizeof(temp));
+	return temp;
+}
 
 Tx64Packet::ostream& operator<<(ostream& os, const Tx64Packet& packet)
 {

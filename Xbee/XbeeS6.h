@@ -1,6 +1,10 @@
 #ifndef XBEES6_H__
 #define XBEES6_H__
 #include <stdint.h>
+#include <ostream>
+#include "general_debug.h"
+#include <vector>
+#include <string.h>
 enum
 {
 	BIG_ENDIAN,
@@ -33,38 +37,10 @@ class Tx64Packet
 
 	public:
 		int calc_chkSum();
-		int set_Address(uint64_t new_address)
-		{
-			dst_address.b0 = BYTE_MASK(new_address, 0);
-			dst_address.b1 = BYTE_MASK(new_address, 8);
-			dst_address.b2 = BYTE_MASK(new_address, 16);
-			dst_address.b3 = BYTE_MASK(new_address, 24);
-			dst_address.b4 = BYTE_MASK(new_address, 32);
-			dst_address.b5 = BYTE_MASK(new_address, 40);
-			dst_address.b6 = BYTE_MASK(new_address, 48);
-			dst_address.b7 = BYTE_MASK(new_address, 56);
+		int set_Address(uint64_t new_address);
+		uint64_t get_Address();
 
-			return dst_address.b0 + dst_address.b1 + dst_address.b2 + dst_address.b3 + dst_address.b4 + dst_address.b5 + dst_address.b6 + dst_address.b7;
-			/*
-			   dst_address = {new_address};
-			 */
-		}
-
-		uint64_t get_Address()
-		{
-			uint64_t temp;
-			if(sizeof(temp) != sizeof(dst_address))
-			{
-				PRINTF("Size of Address do not match!\n");
-				return -1;
-			}
-
-			memcpy(&temp, &dst_address, sizeof(temp));
-			return temp;
-		}
-
-
-		friend ostream& operator<<(ostream& os, const Tx64Packet& packet)
+		friend ostream& operator<<(ostream& os, const Tx64Packet& packet);
 };
 
 
