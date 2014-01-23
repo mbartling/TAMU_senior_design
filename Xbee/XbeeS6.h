@@ -23,6 +23,9 @@ typedef struct Address64
 	uint8_t b7;
 } Address64_t;
 
+/**
+ * Todo Create a deconstructor?
+ */
 class Tx64Packet
 {
 	private:

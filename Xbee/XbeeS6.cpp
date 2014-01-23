@@ -2,13 +2,19 @@
 #define BYTE_MASK(inVal, offset) (uint8_t)((inVal >> offset) & 0xFF)
 
 int the_endianness;
+
+/**
+ * This should be fine.
+ */
 enum {
 	BIG_ENDIAN,
 	LITTLE_ENDIAN
 };
 
 
-/* This will help with debugging */
+/* This will help with debugging
+ * We can use this to figure out bytes are being packed.
+ */
 int check_endianness()
 {
 	int i = 1;
@@ -26,6 +32,9 @@ int check_endianness()
 	}
 }
 
+/**
+ * Set the destination address
+ */
 int Tx64Packet::set_Address(uint64_t new_address)
 {
 	dst_address.b0 = BYTE_MASK(new_address, 0);
@@ -43,6 +52,9 @@ int Tx64Packet::set_Address(uint64_t new_address)
 	 */
 }
 
+/**
+ * Manually Calculate the checksum
+ */
 int Tx64Packet::calc_chkSum()
 {
 	uint8_t sum;
@@ -66,9 +78,13 @@ int Tx64Packet::calc_chkSum()
 		sum += *it;
 	}
 
+	sum = 0xFF - sum; // Final Part in checksum calculation
 	return sum;
 }
 
+/**
+ * Get the 64 bit address as a uint64_t
+ */
 uint64_t Tx64Packet::get_Address()
 {
 	uint64_t temp;
@@ -81,6 +97,14 @@ uint64_t Tx64Packet::get_Address()
 	memcpy(&temp, &dst_address, sizeof(temp));
 	return temp;
 }
+
+
+
+/**
+ * Can override this function for the std stream to trick the arduino into forming a packet
+ * or we could write this to a global buffer or something.
+ *
+ */
 
 std::ostream& Tx64Packet:: operator <<(std::ostream& os, const Tx64Packet& packet)
 {
@@ -111,6 +135,9 @@ std::ostream& Tx64Packet:: operator <<(std::ostream& os, const Tx64Packet& packe
 	return os;
 }
 
+/**
+ * Just a wrapper function
+ */
 void Tx64Packet::push_back(uint8_t byteMe) {
 
 	payload.push_back(byteMe);
