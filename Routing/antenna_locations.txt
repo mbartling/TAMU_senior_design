@@ -1,0 +1,6 @@
+antenna location (row,column)
+
+ant_b (175,140)
+ant_g1 (256,471)
+ant_g2 (134,71)
+ant_g3 (87,208)
