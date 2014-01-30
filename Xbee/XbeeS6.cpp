@@ -104,6 +104,7 @@ uint64_t Tx64Packet::get_Address()
  * Can override this function for the std stream to trick the arduino into forming a packet
  * or we could write this to a global buffer or something.
  *
+ * Another Option is to replace is stream with the arduino stream library
  */
 
 std::ostream& Tx64Packet:: operator <<(std::ostream& os, const Tx64Packet& packet)
