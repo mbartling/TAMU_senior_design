@@ -47,11 +47,12 @@
 
 PORT = /dev/tty.usbserial*
 TARGET = foo
-ARDUINO = /Applications/arduino-0005/lib/targets/arduino
-SRC = $(ARDUINO)/buffer.c $(ARDUINO)/pins_arduino.c \
+#ARDUINO = /Applications/arduino-0005/lib/targets/arduino
+ARDUINO = ~/Code/arduino-1.0.5/hardware/teensySRC = $(ARDUINO)/buffer.c $(ARDUINO)/pins_arduino.c \
   $(ARDUINO)/Serial.c $(ARDUINO)/uart.c $(ARDUINO)/wiring.c
 CXXSRC = $(TARGET).cpp $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/WRandom.cpp
-MCU = atmega8
+#MCU = atmega8
+MCU = at90usb1286      # Teensy++ 2.0
 F_CPU = 16000000
 FORMAT = ihex
 UPLOAD_RATE = 19200
@@ -108,6 +109,8 @@ NM = avr-nm
 AVRDUDE = avrdude
 REMOVE = rm -f
 MV = mv -f
+
+# Programming with teensy_loader_cli <<Michael Bartling
 
 # Define all object files.
 OBJ = $(SRC:.c=.o) $(CXXSRC:.cpp=.o) $(ASRC:.S=.o)

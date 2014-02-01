@@ -2,7 +2,7 @@
 #define XBEES6_H__
 #include <stdint.h>
 #include <ostream>
-#include "general_debug.h"
+#include "../Debug/general_debug.h"
 #include <vector>
 #include <string.h>
 
@@ -45,7 +45,7 @@ class Tx64Packet
 //		unsigned long int get_Address();
 
 		void push_back(uint8_t byteMe);
-		std::ostream& operator<<(std::ostream& os, const Tx64Packet& packet);
+		friend std::ostream& operator<<(std::ostream& os, const Tx64Packet& packet);
 };
 
 
