@@ -80,6 +80,7 @@ int Tx64Packet::calc_chkSum()
 	}
 
 	sum = 0xFF - sum; // Final Part in checksum calculation
+	_checksum = sum;
 	return sum;
 }
 
@@ -99,7 +100,41 @@ uint64_t Tx64Packet::get_Address()
 	return temp;
 }
 
+Tx64Packet::Tx64Packet() {
+	_sf = 0x7E;
+	_length = 11;
+	_API_frame_id = 0x00;
+	_seqno = 1;
+	memcpy(&_dst_address, &broadcastAddress, sizeof(broadcastAddress));
+	_tx_opts = 0x00;
+}
 
+Tx64Packet::Tx64Packet(Address64_t* dst_address) {
+	_sf = 0x7E;
+	_length = 11;
+	_API_frame_id = 0x00;
+	_seqno = 1;
+	memcpy(&_dst_address, dst_address, sizeof(*dst_address));
+	_tx_opts = 0x00;
+}
+
+Tx64Packet::Tx64Packet(uint8_t seqno) {
+	_sf = 0x7E;
+	_length = 11;
+	_API_frame_id = 0x00;
+	_seqno = seqno;
+	memcpy(&_dst_address, &broadcastAddress, sizeof(broadcastAddress));
+	_tx_opts = 0x00;
+}
+
+Tx64Packet::Tx64Packet(uint8_t seqno, Address64_t* dst_address) {
+	_sf = 0x7E;
+	_length = 11;
+	_API_frame_id = 0x00;
+	_seqno = seqno;
+	memcpy(&_dst_address, dst_address, sizeof(*dst_address));
+	_tx_opts = 0x00;
+}
 
 /**
  * Can override this function for the std stream to trick the arduino into forming a packet
@@ -108,43 +143,12 @@ uint64_t Tx64Packet::get_Address()
  * Another Option is to replace is stream with the arduino stream library
  */
 
-//uint16_t Tx64Packet:: operator <<( uint8_t * buffer, Tx64Packet *packet)
-//{
-//	//uint64_t temp = packet.get_Address();
-//	uint16_t byte_cnt;
-//
-//	memcpy(&buffer[byte_cnt], packet->sf			, sizeof(packet->sf			 ) );   byte_cnt += sizeof(packet->sf			);  //buffer += sizeof(packet->sf			);
-//	memcpy(&buffer[byte_cnt], packet->length		, sizeof(packet->length		 ) );   byte_cnt += sizeof(packet->length		);  //buffer += sizeof(packet->length		);
-//	memcpy(&buffer[byte_cnt], packet->API_frame_id	, sizeof(packet->API_frame_id) );   byte_cnt += sizeof(packet->API_frame_id );  //buffer += sizeof(packet->API_frame_id);
-//	memcpy(&buffer[byte_cnt], packet->seqno		, sizeof(packet->seqno		 ) );   byte_cnt += sizeof(packet->seqno		);  //buffer += sizeof(packet->seqno		);
-//
-//    /* Writbuffer, e out the Address */                                                                                 //
-//	memcpy(&buffer[byte_cnt], packet->dst_address.b0, sizeof(packet->dst_address.b0)); byte_cnt += sizeof(packet->dst_address.b0); //buffer += sizeof(packet->dst_address.b0);
-//	memcpy(&buffer[byte_cnt], packet->dst_address.b1, sizeof(packet->dst_address.b1)); byte_cnt += sizeof(packet->dst_address.b1); //buffer += sizeof(packet->dst_address.b1);
-//	memcpy(&buffer[byte_cnt], packet->dst_address.b2, sizeof(packet->dst_address.b2)); byte_cnt += sizeof(packet->dst_address.b2); //buffer += sizeof(packet->dst_address.b2);
-//	memcpy(&buffer[byte_cnt], packet->dst_address.b3, sizeof(packet->dst_address.b3)); byte_cnt += sizeof(packet->dst_address.b3); //buffer += sizeof(packet->dst_address.b3);
-//	memcpy(&buffer[byte_cnt], packet->dst_address.b4, sizeof(packet->dst_address.b4)); byte_cnt += sizeof(packet->dst_address.b4); //buffer += sizeof(packet->dst_address.b4);
-//	memcpy(&buffer[byte_cnt], packet->dst_address.b5, sizeof(packet->dst_address.b5)); byte_cnt += sizeof(packet->dst_address.b5); //buffer += sizeof(packet->dst_address.b5);
-//	memcpy(&buffer[byte_cnt], packet->dst_address.b6, sizeof(packet->dst_address.b6)); byte_cnt += sizeof(packet->dst_address.b6); //buffer += sizeof(packet->dst_address.b6);
-//	memcpy(&buffer[byte_cnt], packet->dst_address.b7, sizeof(packet->dst_address.b7)); byte_cnt += sizeof(packet->dst_address.b7); //buffer += sizeof(packet->dst_address.b7);
-//
-//	memcpy(&buffer[byte_cnt], packet->tx_opts, sizeof(packet->tx_opts)); byte_cnt += sizeof(packet->tx_opts);
-//	for(std::vector<uint8_t>::iterator it = packet->payload.begin(); it != packet->payload.end(); ++it)
-//	{
-//		//os << *it;
-//        memcpy(&buffer[byte_cnt], *it, sizeof(*it));
-//        byte_cnt += sizeof(*it);
-//	}
-//	//os<<packet.checksum;
-//    memcpy(&buffer[byte_cnt], packet->checksum, sizeof(packet->checksum));
-//    byte_cnt += sizeof(packet->checksum);
-//
-//	return byte_cnt;
-//}
 uint16_t Tx64Packet::packet_buf()
 {
 	//uint64_t temp = packet.get_Address();
 	uint16_t byte_cnt;
+
+	calc_chkSum();
 
 	memcpy(&tx_buffer[byte_cnt], &_sf			, sizeof(_sf			    ) ) ; byte_cnt += sizeof(_sf			  );  //buffer += sizeof(packet->sf			);
 	memcpy(&tx_buffer[byte_cnt], &_length		, sizeof(_length		    ) ) ; byte_cnt += sizeof(_length		  );  //buffer += sizeof(packet->length		); 
@@ -182,4 +186,5 @@ uint16_t Tx64Packet::packet_buf()
 void Tx64Packet::push_back(uint8_t byteMe) {
 
 	_payload.push_back(byteMe);
+	_length += 1;
 }
