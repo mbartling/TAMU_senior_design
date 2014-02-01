@@ -10,7 +10,7 @@
 /**
  * could use calloc instead but this is for clarity
  */
-uVector::uVector(int s):sz(s), elem(malloc(s)), space(s) {
+uVector::uVector(int s):sz(s), elem((uint8_t *)malloc(s)), space(s) {
 	for(int i = 0; i < sz; ++i )
 	{
 		elem[i] = 0;
@@ -32,7 +32,7 @@ uVector& uVector::operator =(const uVector& cv) {
 		return *this;
 	}
 
-	uint8_t *p = malloc(cv.sz);
+	uint8_t *p = (uint8_t *)malloc(cv.sz);
 	for(int i = 0; i < cv.sz; ++i)
 	{
 		p[i] = cv.elem[i];
@@ -69,7 +69,7 @@ void uVector::reserve(int newalloc)
 		return;
 	}
 
-	uint8_t * ptr = malloc(newalloc);
+	uint8_t * ptr = (uint8_t *)malloc(newalloc);
 	for(int i = 0; i < sz; ++i )
 	{
 		ptr[i] = elem[i];
