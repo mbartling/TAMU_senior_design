@@ -24,22 +24,32 @@ typedef struct Address64
 	uint8_t b7;
 } Address64_t;
 
+const Address64_t broadcastAddress = {0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF };
 /**
  * Todo Create a deconstructor?
  */
 class Tx64Packet
 {
 	private:
-		uint8_t sf;
-		uint16_t length;
-		uint8_t API_frame_id;
-		uint8_t seqno;
-		Address64_t dst_address;
-		uint8_t tx_opts;
-		std::vector<uint8_t> payload;
-		uint8_t checksum;
+		uint8_t _sf;
+		uint16_t _length; //!< Number of bytes between length and Checksum
+		uint8_t _API_frame_id;
+		uint8_t _seqno;
+		Address64_t _dst_address;
+		uint8_t _tx_opts;
+		std::vector<uint8_t> _payload;
+		uint8_t _checksum;
 
 	public:
+
+		/**
+		 * Constructors
+		 */
+
+		Tx64Packet();
+		Tx64Packet(Address64_t *dst_address);
+		Tx64Packet(uint8_t seqno);
+		Tx64Packet(uint8_t seqno, Address64_t *dst_address);
 		int calc_chkSum();
 		int set_Address(uint64_t new_address);
 		uint64_t get_Address();

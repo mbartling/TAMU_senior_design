@@ -30,14 +30,14 @@ typedef struct Address64
 class Tx64Packet
 {
 	private:
-		uint8_t sf;
-		uint16_t length;
-		uint8_t API_frame_id;
-		uint8_t seqno;
-		Address64_t dst_address;
-		uint8_t tx_opts;
-		std::vector<uint8_t> payload;
-		uint8_t checksum;
+		uint8_t _sf;
+		uint16_t _length;
+		uint8_t _API_frame_id;
+		uint8_t _seqno;
+		Address64_t _dst_address;
+		uint8_t _tx_opts;
+		std::vector<uint8_t> _payload;
+		uint8_t _checksum;
 
 	public:
 		int calc_chkSum();
