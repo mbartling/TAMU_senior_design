@@ -153,7 +153,7 @@ Tx64Packet::Tx64Packet(uint8_t seqno, Address64_t* dst_address) {
  * Another Option is to replace is stream with the arduino stream library
  */
 
-uint16_t Tx64Packet::packet_buf()
+uint16_t Tx64Packet::packet_buf() const
 {
 	//uint64_t temp = packet.get_Address();
 	uint16_t byte_cnt;
@@ -198,3 +198,48 @@ void Tx64Packet::push_back(uint8_t byteMe) {
 	_payload.push_back(byteMe);
 	_length += 1;
 }
+
+uint8_t Tx64Packet::getApiFrameId() const {
+		return _API_frame_id;
+	}
+
+	void Tx64Packet::setApiFrameId(uint8_t apiFrameId) {
+		_API_frame_id = apiFrameId;
+	}
+
+	uint8_t Tx64Packet::getChecksum() const {
+		return _checksum;
+	}
+
+
+	uint16_t Tx64Packet::Tx64Packet::getLength() const {
+		return _length;
+	}
+
+	void Tx64Packet::setLength(uint16_t length) {
+		_length = length;
+	}
+
+	uint8_t Tx64Packet::getSeqno() const {
+		return _seqno;
+	}
+
+	void Tx64Packet::setSeqno(uint8_t seqno) {
+		_seqno = seqno;
+	}
+
+	uint8_t Tx64Packet::getSf() const {
+		return _sf;
+	}
+
+	void Tx64Packet::setSf(uint8_t sf) {
+		_sf = sf;
+	}
+
+	uint8_t Tx64Packet::getTxOpts() const {
+		return _tx_opts;
+	}
+
+	void Tx64Packet::setTxOpts(uint8_t txOpts) {
+		_tx_opts = txOpts;
+	}

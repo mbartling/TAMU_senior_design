@@ -59,7 +59,32 @@ class Tx64Packet
 
 		void push_back(uint8_t byteMe);
 //		uint16_t operator<<( uint8_t* buffer, const Tx64Packet* packet);
-		uint16_t packet_buf();
+		uint16_t packet_buf() const;
+
+	uint8_t getApiFrameId() const ;
+
+	void setApiFrameId(uint8_t apiFrameId);
+
+	uint8_t getChecksum() const ;
+
+
+
+	uint16_t getLength() const ;
+
+	void setLength(uint16_t length) ;
+
+	uint8_t getSeqno() const ;
+
+	void setSeqno(uint8_t seqno) ;
+
+	uint8_t getSf() const ;
+
+	void setSf(uint8_t sf) ;
+
+	uint8_t getTxOpts() const;
+
+
+	void setTxOpts(uint8_t txOpts) ;
 };
 
 
