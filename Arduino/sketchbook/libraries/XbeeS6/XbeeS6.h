@@ -1,11 +1,11 @@
 #ifndef XBEES6_H__
 #define XBEES6_H__
 #include "Arduino.h"
-#include <StandardCplusplus.h>
+//#include <StandardCplusplus.h>
 #include <stdint.h>
 //#include <ostream>
 //#include <general_debug.h>
-#include <vector>
+#include <uVector.h>
 #include <string.h>
 
 #define TX_BUFFER_SIZE 512
@@ -38,7 +38,7 @@ class Tx64Packet
 		uint8_t _seqno;
 		Address64_t _dst_address;
 		uint8_t _tx_opts;
-		std::vector<uint8_t> _payload;
+		uVector _payload;
 		uint8_t _checksum;
 
 	public:
