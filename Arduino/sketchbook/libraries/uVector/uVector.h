@@ -38,6 +38,8 @@ public:
 
 	void reserve(int newalloc);
 
+	// For memory management
+	void clear();
 };
 
 

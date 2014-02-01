@@ -54,14 +54,14 @@ int check_endianness()
 int Tx64Packet::set_Address(uint64_t new_address)
 {
 	// Will write little endian but need Big endian
-//	_dst_address.b0 = BYTE_MASK(new_address, 0);
-//	_dst_address.b1 = BYTE_MASK(new_address, 8);
-//	_dst_address.b2 = BYTE_MASK(new_address, 16);
-//	_dst_address.b3 = BYTE_MASK(new_address, 24);
-//	_dst_address.b4 = BYTE_MASK(new_address, 32);
-//	_dst_address.b5 = BYTE_MASK(new_address, 40);
-//	_dst_address.b6 = BYTE_MASK(new_address, 48);
-//	_dst_address.b7 = BYTE_MASK(new_address, 56);
+	//	_dst_address.b0 = BYTE_MASK(new_address, 0);
+	//	_dst_address.b1 = BYTE_MASK(new_address, 8);
+	//	_dst_address.b2 = BYTE_MASK(new_address, 16);
+	//	_dst_address.b3 = BYTE_MASK(new_address, 24);
+	//	_dst_address.b4 = BYTE_MASK(new_address, 32);
+	//	_dst_address.b5 = BYTE_MASK(new_address, 40);
+	//	_dst_address.b6 = BYTE_MASK(new_address, 48);
+	//	_dst_address.b7 = BYTE_MASK(new_address, 56);
 
 	_dst_address.b0 = BYTE_MASK(new_address, 56);
 	_dst_address.b1 = BYTE_MASK(new_address, 48);
@@ -85,8 +85,8 @@ int Tx64Packet::calc_chkSum()
 {
 	uint8_t sum;
 
-//	sum += _sf;
-//	sum += (_length & 0xFF) + ((_length >> 8) & 0xFF);
+	//	sum += _sf;
+	//	sum += (_length & 0xFF) + ((_length >> 8) & 0xFF);
 	sum += _API_frame_id;
 	sum += _seqno;
 	sum += _dst_address.b0;
@@ -197,8 +197,8 @@ uint16_t Tx64Packet::packet_buf() const
 	memcpy(&tx_buffer[byte_cnt], &_tx_opts, sizeof(_tx_opts)); byte_cnt += sizeof(_tx_opts);
 	for(int i = 0; i < _payload.size(); i++)
 	{
-//		memcpy(&tx_buffer[byte_cnt], &(*it), sizeof(*it));
-//		byte_cnt += sizeof(*it);
+		//		memcpy(&tx_buffer[byte_cnt], &(*it), sizeof(*it));
+		//		byte_cnt += sizeof(*it);
 		tx_buffer[byte_cnt] = _payload[i];
 		byte_cnt++;
 	}
@@ -219,54 +219,63 @@ void Tx64Packet::push_back(uint8_t byteMe) {
 }
 
 uint8_t Tx64Packet::getApiFrameId() const {
-		return _API_frame_id;
-	}
+	return _API_frame_id;
+}
 
-	void Tx64Packet::setApiFrameId(uint8_t apiFrameId) {
-		_API_frame_id = apiFrameId;
-	}
+void Tx64Packet::setApiFrameId(uint8_t apiFrameId) {
+	_API_frame_id = apiFrameId;
+}
 
-	uint8_t Tx64Packet::getChecksum() const {
-		return _checksum;
-	}
+uint8_t Tx64Packet::getChecksum() const {
+	return _checksum;
+}
 
 
-	uint16_t Tx64Packet::Tx64Packet::getLength() const {
-		return _length;
-	}
+uint16_t Tx64Packet::Tx64Packet::getLength() const {
+	return _length;
+}
 
-	void Tx64Packet::setLength(uint16_t length) {
-		_length = length;
-	}
+void Tx64Packet::setLength(uint16_t length) {
+	_length = length;
+}
 
-	uint8_t Tx64Packet::getSeqno() const {
-		return _seqno;
-	}
+uint8_t Tx64Packet::getSeqno() const {
+	return _seqno;
+}
 
-	void Tx64Packet::setSeqno(uint8_t seqno) {
-		_seqno = seqno;
-	}
+void Tx64Packet::setSeqno(uint8_t seqno) {
+	_seqno = seqno;
+}
 
-	uint8_t Tx64Packet::getSf() const {
-		return _sf;
-	}
+uint8_t Tx64Packet::getSf() const {
+	return _sf;
+}
 
-	void Tx64Packet::setSf(uint8_t sf) {
-		_sf = sf;
-	}
+void Tx64Packet::setSf(uint8_t sf) {
+	_sf = sf;
+}
 
-	uint8_t Tx64Packet::getTxOpts() const {
-		return _tx_opts;
-	}
+uint8_t Tx64Packet::getTxOpts() const {
+	return _tx_opts;
+}
 
 uint16_t Tx64Packet::prepare2send() {
-
 
 	calc_chkSum();
 	return packet_buf();
 
 }
 
-	void Tx64Packet::setTxOpts(uint8_t txOpts) {
-		_tx_opts = txOpts;
-	}
+void Tx64Packet::clear_payload() {
+	_payload.clear();
+}
+
+void Tx64Packet::setTxOpts(uint8_t txOpts) {
+	_tx_opts = txOpts;
+}
+
+/*===============================================*/
+/* Begin RX Code */
+/*===============================================*/
+
+

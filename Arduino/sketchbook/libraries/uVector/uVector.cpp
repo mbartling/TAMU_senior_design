@@ -80,5 +80,10 @@ void uVector::reserve(int newalloc)
 
 }
 
-
+void uVector::clear()
+{
+	sz = 0;
+	space = 0;
+	free(elem);
+}
 
