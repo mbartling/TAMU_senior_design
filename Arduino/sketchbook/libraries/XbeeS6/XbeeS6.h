@@ -1,9 +1,10 @@
 #ifndef XBEES6_H__
 #define XBEES6_H__
 #include "Arduino.h"
+#include <StandardCplusplus.h>
 #include <stdint.h>
 //#include <ostream>
-#include "../Debug/general_debug.h"
+#include <general_debug.h>
 #include <vector>
 #include <string.h>
 
