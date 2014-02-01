@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "XbeeS6.h"
 //#include <iterator>
-
+#define DEBUG_MODE 1
 #if DEBUG_MODE
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -21,6 +21,7 @@ enum {
 	LITTLE_ENDIAN
 };
 
+tx_buffer[TX_BUFFER_SIZE];
 
 /* This will help with debugging
  * We can use this to figure out bytes are being packed.
@@ -185,7 +186,7 @@ uint16_t Tx64Packet::packet_buf()
 	//os<<packet.checksum;
 	memcpy(&tx_buffer[byte_cnt], &_checksum, sizeof(_checksum));
 	byte_cnt += sizeof(_checksum);
-
+	PRINTF("%d", byte_cnt);
 	return byte_cnt;
 }
 

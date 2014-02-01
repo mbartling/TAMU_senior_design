@@ -5,7 +5,7 @@
  *      Author: Mike
  */
 #include "Arduino.h"
-#include "uVector.h"
+#include <uVector.h>
 
 /**
  * could use calloc instead but this is for clarity

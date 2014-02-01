@@ -11,8 +11,8 @@
 #define TX_BUFFER_SIZE 512
 
 /* Separate the tx_buffer so we do not need to handle the streaming functions in the class*/
-uint8_t tx_buffer[TX_BUFFER_SIZE];
-
+//static uint8_t tx_buffer[TX_BUFFER_SIZE];
+extern uint8_t tx_buffer[TX_BUFFER_SIZE];
 typedef struct Address64
 {
 	uint8_t b0;
@@ -51,6 +51,7 @@ class Tx64Packet
 		Tx64Packet(Address64_t *dst_address);
 		Tx64Packet(uint8_t seqno);
 		Tx64Packet(uint8_t seqno, Address64_t *dst_address);
+		Tx64Packet(const Tx64Packet& );
 		int calc_chkSum();
 		int set_Address(uint64_t new_address);
 		uint64_t get_Address();

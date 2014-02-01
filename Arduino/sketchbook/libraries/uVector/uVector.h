@@ -25,7 +25,7 @@ public:
 	uVector(const uVector&);
 	uVector& operator =(const uVector&);
 
-	~uVector(){ delete[] elem; }
+	~uVector(){ free( elem); }
 
 	uint8_t operator[](int n){ return elem[n];}
 	const uint8_t operator[](int n) const {return elem[n]; }
