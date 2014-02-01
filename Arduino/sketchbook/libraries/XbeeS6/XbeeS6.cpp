@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include "XbeeS6.h"
+#include <iterator>
 #define BYTE_MASK(inVal, offset) (uint8_t)((inVal >> offset) & 0xFF)
 
 int the_endianness;
