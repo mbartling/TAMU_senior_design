@@ -1,3 +1,4 @@
+#include "Arduino.h"
 #include "XbeeS6.h"
 #define BYTE_MASK(inVal, offset) (uint8_t)((inVal >> offset) & 0xFF)
 
