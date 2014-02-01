@@ -83,9 +83,9 @@ int Tx64Packet::calc_chkSum()
 	sum += _dst_address.b7;
 	sum += _tx_opts;
 
-	for(std::vector<uint8_t>::iterator it = _payload.begin(); it != _payload.end(); ++it)
+	for(int i = 0; i < _payload.size(); i++)
 	{
-		sum += *it;
+		sum += _payload[i];
 	}
 
 	sum = 0xFF - sum; // Final Part in checksum calculation
@@ -175,12 +175,12 @@ uint16_t Tx64Packet::packet_buf()
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b7, sizeof(_dst_address.b7))   ; byte_cnt += sizeof(_dst_address.b7); //buffer += sizeof(packet->dst_address.b7);
 
 	memcpy(&tx_buffer[byte_cnt], &_tx_opts, sizeof(_tx_opts)); byte_cnt += sizeof(_tx_opts);
-	for(std::vector<uint8_t>::iterator it = _payload.begin(); it != _payload.end(); ++it)
+	for(int i = 0; i < _payload.size(); i++)
 	{
-		//os << *it;
-        //uint8_t temp = *it;
-		memcpy(&tx_buffer[byte_cnt], &(*it), sizeof(*it));
-		byte_cnt += sizeof(*it);
+//		memcpy(&tx_buffer[byte_cnt], &(*it), sizeof(*it));
+//		byte_cnt += sizeof(*it);
+		tx_buffer[byte_cnt] = _payload[i];
+		byte_cnt++;
 	}
 	//os<<packet.checksum;
 	memcpy(&tx_buffer[byte_cnt], &_checksum, sizeof(_checksum));
