@@ -12,7 +12,7 @@
 
 /* Separate the tx_buffer so we do not need to handle the streaming functions in the class*/
 //static uint8_t tx_buffer[TX_BUFFER_SIZE];
-extern uint8_t tx_buffer[TX_BUFFER_SIZE];
+uint8_t tx_buffer[TX_BUFFER_SIZE];
 typedef struct Address64
 {
 	uint8_t b0;
@@ -59,6 +59,7 @@ class Tx64Packet
 
 		void push_back(uint8_t byteMe);
 //		uint16_t operator<<( uint8_t* buffer, const Tx64Packet* packet);
+		uint16_t prepare2send();
 		uint16_t packet_buf() const;
 
 	uint8_t getApiFrameId() const ;
