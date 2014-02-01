@@ -22,7 +22,12 @@ enum {
 };
 
 //tx_buffer[TX_BUFFER_SIZE];
+uint8_t tx_buffer[TX_BUFFER_SIZE];
 
+uint8_t * get_buffer()
+{
+	return &tx_buffer[0];
+}
 /* This will help with debugging
  * We can use this to figure out bytes are being packed.
  */
@@ -48,14 +53,24 @@ int check_endianness()
  */
 int Tx64Packet::set_Address(uint64_t new_address)
 {
-	_dst_address.b0 = BYTE_MASK(new_address, 0);
-	_dst_address.b1 = BYTE_MASK(new_address, 8);
-	_dst_address.b2 = BYTE_MASK(new_address, 16);
-	_dst_address.b3 = BYTE_MASK(new_address, 24);
-	_dst_address.b4 = BYTE_MASK(new_address, 32);
-	_dst_address.b5 = BYTE_MASK(new_address, 40);
-	_dst_address.b6 = BYTE_MASK(new_address, 48);
-	_dst_address.b7 = BYTE_MASK(new_address, 56);
+	// Will write little endian but need Big endian
+//	_dst_address.b0 = BYTE_MASK(new_address, 0);
+//	_dst_address.b1 = BYTE_MASK(new_address, 8);
+//	_dst_address.b2 = BYTE_MASK(new_address, 16);
+//	_dst_address.b3 = BYTE_MASK(new_address, 24);
+//	_dst_address.b4 = BYTE_MASK(new_address, 32);
+//	_dst_address.b5 = BYTE_MASK(new_address, 40);
+//	_dst_address.b6 = BYTE_MASK(new_address, 48);
+//	_dst_address.b7 = BYTE_MASK(new_address, 56);
+
+	_dst_address.b0 = BYTE_MASK(new_address, 56);
+	_dst_address.b1 = BYTE_MASK(new_address, 48);
+	_dst_address.b2 = BYTE_MASK(new_address, 40);
+	_dst_address.b3 = BYTE_MASK(new_address, 32);
+	_dst_address.b4 = BYTE_MASK(new_address, 24);
+	_dst_address.b5 = BYTE_MASK(new_address, 16);
+	_dst_address.b6 = BYTE_MASK(new_address, 8);
+	_dst_address.b7 = BYTE_MASK(new_address, 0);
 
 	return _dst_address.b0 + _dst_address.b1 + _dst_address.b2 + _dst_address.b3 + _dst_address.b4 + _dst_address.b5 + _dst_address.b6 + _dst_address.b7;
 	/*
@@ -70,8 +85,8 @@ int Tx64Packet::calc_chkSum()
 {
 	uint8_t sum;
 
-	sum += _sf;
-	sum += (_length & 0xFF) + ((_length >> 8) & 0xFF);
+//	sum += _sf;
+//	sum += (_length & 0xFF) + ((_length >> 8) & 0xFF);
 	sum += _API_frame_id;
 	sum += _seqno;
 	sum += _dst_address.b0;
@@ -158,10 +173,14 @@ uint16_t Tx64Packet::packet_buf() const
 	//uint64_t temp = packet.get_Address();
 	uint16_t byte_cnt;
 
+	/* Need to byteswap the packet length first */
+	uint16_t temp;
+	temp = (_length >> 8) | (_length << 8);
 
 
-	memcpy(&tx_buffer[byte_cnt], &_sf			, sizeof(_sf			    ) ) ; byte_cnt += sizeof(_sf			  );  //buffer += sizeof(packet->sf			);
-	memcpy(&tx_buffer[byte_cnt], &_length		, sizeof(_length		    ) ) ; byte_cnt += sizeof(_length		  );  //buffer += sizeof(packet->length		); 
+
+	memcpy(&tx_buffer[byte_cnt], &_sf			 , sizeof(_sf			    ) ) ; byte_cnt += sizeof(_sf			  );  //buffer += sizeof(packet->sf			);
+	memcpy(&tx_buffer[byte_cnt], &temp			 , sizeof(temp		    ) ) ; byte_cnt += sizeof(_length		  );  //buffer += sizeof(packet->length		);
 	memcpy(&tx_buffer[byte_cnt], &_API_frame_id  , sizeof(_API_frame_id   ) ) ; byte_cnt += sizeof(_API_frame_id );  //buffer += sizeof(packet->API_frame_id);  
 	memcpy(&tx_buffer[byte_cnt], &_seqno         , sizeof(_seqno		    ) ) ; byte_cnt += sizeof(_seqno		  );  //buffer += sizeof(packet->seqno		); 
 
@@ -241,6 +260,8 @@ uint8_t Tx64Packet::getApiFrameId() const {
 	}
 
 uint16_t Tx64Packet::prepare2send() {
+
+
 	calc_chkSum();
 	return packet_buf();
 

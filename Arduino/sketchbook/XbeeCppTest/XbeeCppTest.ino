@@ -14,7 +14,7 @@ uint16_t dummy = 0x1419;
 
 Tx64Packet tx_packet;
 uVector myvector;
-
+uint8_t * tx_buffer1;
 void setup()
 {
   Serial.begin(BAUD_RATE);
@@ -29,21 +29,23 @@ void setup()
   Serial.println(myvector[1], HEX);
   printf("printf test\n");
   
-  memcpy(my_buffer, dummy, sizeof(dummy));
+  memcpy(my_buffer, &dummy, sizeof(dummy));
   Serial.println(my_buffer[0], HEX);
   Serial.println(my_buffer[1], HEX);
   
+  tx_buffer1 = get_buffer();
 }
 int j = 0;
 void loop()
 {
   while(j <  20)
   {
-  uint16_t length = tx_packet.packet_buf();
+  tx_packet.push_back( (uint8_t) j);
+  uint16_t length = tx_packet.prepare2send();
   uint16_t i;
   for(i = 0; i < length; i++)
   {
-    Serial.print(tx_buffer[i], HEX); 
+    Serial.print(tx_buffer1[i], HEX); 
     Serial.print(" ");
   }
   Serial.print('\n');

@@ -12,7 +12,7 @@
 
 /* Separate the tx_buffer so we do not need to handle the streaming functions in the class*/
 //static uint8_t tx_buffer[TX_BUFFER_SIZE];
-uint8_t tx_buffer[TX_BUFFER_SIZE];
+//static uint8_t tx_buffer[TX_BUFFER_SIZE];
 typedef struct Address64
 {
 	uint8_t b0;
@@ -26,6 +26,9 @@ typedef struct Address64
 } Address64_t;
 
 const Address64_t broadcastAddress = {0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF };
+
+uint8_t * get_buffer();
+
 /**
  * Todo Create a deconstructor?
  */
