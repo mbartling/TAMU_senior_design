@@ -21,7 +21,7 @@ enum {
 	LITTLE_ENDIAN
 };
 
-tx_buffer[TX_BUFFER_SIZE];
+//tx_buffer[TX_BUFFER_SIZE];
 
 /* This will help with debugging
  * We can use this to figure out bytes are being packed.
@@ -158,7 +158,7 @@ uint16_t Tx64Packet::packet_buf() const
 	//uint64_t temp = packet.get_Address();
 	uint16_t byte_cnt;
 
-	calc_chkSum();
+
 
 	memcpy(&tx_buffer[byte_cnt], &_sf			, sizeof(_sf			    ) ) ; byte_cnt += sizeof(_sf			  );  //buffer += sizeof(packet->sf			);
 	memcpy(&tx_buffer[byte_cnt], &_length		, sizeof(_length		    ) ) ; byte_cnt += sizeof(_length		  );  //buffer += sizeof(packet->length		); 
@@ -239,6 +239,12 @@ uint8_t Tx64Packet::getApiFrameId() const {
 	uint8_t Tx64Packet::getTxOpts() const {
 		return _tx_opts;
 	}
+
+uint16_t Tx64Packet::prepare2send() {
+	calc_chkSum();
+	return packet_buf();
+
+}
 
 	void Tx64Packet::setTxOpts(uint8_t txOpts) {
 		_tx_opts = txOpts;
