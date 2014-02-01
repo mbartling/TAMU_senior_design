@@ -1,3 +1,12 @@
+/*
+ * uVector.cpp
+ *
+ *  Created on: Feb 1, 2014
+ *      Author: Mike
+ */
+#include "Arduino.h"
+#include "uVector.h"
+
 uVector::uVector(int s):sz(s), elem(new uint8_t[s]), space(s) {
 	for(int i = 0; i < sz; ++i )
 	{
@@ -48,12 +57,7 @@ void uVector::push_back(const uint8_t data) {
 	elem[sz] = data;
 	++sz;
 }
-/*
- * uVector.cpp
- *
- *  Created on: Feb 1, 2014
- *      Author: Mike
- */
+
 
 void uVector::reserve(int newalloc)
 {
