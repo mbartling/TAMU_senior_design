@@ -1,5 +1,6 @@
-#include <XbeeS6.h>
 
+#include <XbeeS6.h>
+#include <pnew.cpp>
 //#include <XBeeS6.h>
 
 //#include "XbeeS6.h"
@@ -20,8 +21,8 @@ void setup()
 void loop()
 {
   uint16_t length = tx_packet.packet_buf();
-  
-  for(int i = 0; i < length; i++)
+  uint16_t i;
+  for(i = 0; i < length; i++)
   {
     Serial.print(tx_buffer[i], HEX); 
     Serial.print(" ");
