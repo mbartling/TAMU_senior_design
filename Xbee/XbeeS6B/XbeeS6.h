@@ -1,5 +1,6 @@
 #ifndef XBEES6_H__
 #define XBEES6_H__
+#include "Arduino.h"
 #include <stdint.h>
 #include <ostream>
 #include "../Debug/general_debug.h"
