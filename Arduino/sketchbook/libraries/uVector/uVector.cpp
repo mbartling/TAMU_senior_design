@@ -7,7 +7,10 @@
 #include "Arduino.h"
 #include "uVector.h"
 
-uVector::uVector(int s):sz(s), elem(new uint8_t[s]), space(s) {
+/**
+ * could use calloc instead but this is for clarity
+ */
+uVector::uVector(int s):sz(s), elem(malloc(s)), space(s) {
 	for(int i = 0; i < sz; ++i )
 	{
 		elem[i] = 0;
@@ -29,12 +32,12 @@ uVector& uVector::operator =(const uVector& cv) {
 		return *this;
 	}
 
-	uint8_t *p = new uint8_t[cv.sz];
+	uint8_t *p = malloc(cv.sz);
 	for(int i = 0; i < cv.sz; ++i)
 	{
 		p[i] = cv.elem[i];
 	}
-	delete[] elem;
+	free(elem);
 	space = sz = cv.sz;
 	elem = p;
 	return *this;
@@ -66,12 +69,12 @@ void uVector::reserve(int newalloc)
 		return;
 	}
 
-	uint8_t * ptr = new uint8_t[newalloc];
+	uint8_t * ptr = malloc(newalloc);
 	for(int i = 0; i < sz; ++i )
 	{
 		ptr[i] = elem[i];
 	}
-	delete[] elem;
+	free(elem);
 	elem = ptr;
 	space = newalloc;
 

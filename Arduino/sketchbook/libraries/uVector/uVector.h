@@ -10,7 +10,7 @@
 
 #include "Arduino.h"
 #include <stdint.h>
-#include <new>
+#include <stdlib.h> //for malloc and free
 
 class uVector
 {
