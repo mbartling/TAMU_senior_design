@@ -9,6 +9,8 @@
 #define UVECTOR_H_
 
 #include "Arduino.h"
+#include <stdint.h>
+#include <new>
 
 class uVector
 {

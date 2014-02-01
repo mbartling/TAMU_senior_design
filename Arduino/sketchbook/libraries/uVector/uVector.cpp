@@ -29,7 +29,7 @@ uVector& uVector::operator =(const uVector& cv) {
 		return *this;
 	}
 
-	uint8_t p = new uint8_t[cv.sz];
+	uint8_t *p = new uint8_t[cv.sz];
 	for(int i = 0; i < cv.sz; ++i)
 	{
 		p[i] = cv.elem[i];
