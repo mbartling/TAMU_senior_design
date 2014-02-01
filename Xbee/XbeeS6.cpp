@@ -107,33 +107,72 @@ uint64_t Tx64Packet::get_Address()
  * Another Option is to replace is stream with the arduino stream library
  */
 
-std::ostream& Tx64Packet:: operator <<(std::ostream& os, const Tx64Packet& packet)
+//uint16_t Tx64Packet:: operator <<( uint8_t * buffer, Tx64Packet *packet)
+//{
+//	//uint64_t temp = packet.get_Address();
+//	uint16_t byte_cnt;
+//
+//	memcpy(&buffer[byte_cnt], packet->sf			, sizeof(packet->sf			 ) );   byte_cnt += sizeof(packet->sf			);  //buffer += sizeof(packet->sf			);
+//	memcpy(&buffer[byte_cnt], packet->length		, sizeof(packet->length		 ) );   byte_cnt += sizeof(packet->length		);  //buffer += sizeof(packet->length		);
+//	memcpy(&buffer[byte_cnt], packet->API_frame_id	, sizeof(packet->API_frame_id) );   byte_cnt += sizeof(packet->API_frame_id );  //buffer += sizeof(packet->API_frame_id);
+//	memcpy(&buffer[byte_cnt], packet->seqno		, sizeof(packet->seqno		 ) );   byte_cnt += sizeof(packet->seqno		);  //buffer += sizeof(packet->seqno		);
+//
+//    /* Writbuffer, e out the Address */                                                                                 //
+//	memcpy(&buffer[byte_cnt], packet->dst_address.b0, sizeof(packet->dst_address.b0)); byte_cnt += sizeof(packet->dst_address.b0); //buffer += sizeof(packet->dst_address.b0);
+//	memcpy(&buffer[byte_cnt], packet->dst_address.b1, sizeof(packet->dst_address.b1)); byte_cnt += sizeof(packet->dst_address.b1); //buffer += sizeof(packet->dst_address.b1);
+//	memcpy(&buffer[byte_cnt], packet->dst_address.b2, sizeof(packet->dst_address.b2)); byte_cnt += sizeof(packet->dst_address.b2); //buffer += sizeof(packet->dst_address.b2);
+//	memcpy(&buffer[byte_cnt], packet->dst_address.b3, sizeof(packet->dst_address.b3)); byte_cnt += sizeof(packet->dst_address.b3); //buffer += sizeof(packet->dst_address.b3);
+//	memcpy(&buffer[byte_cnt], packet->dst_address.b4, sizeof(packet->dst_address.b4)); byte_cnt += sizeof(packet->dst_address.b4); //buffer += sizeof(packet->dst_address.b4);
+//	memcpy(&buffer[byte_cnt], packet->dst_address.b5, sizeof(packet->dst_address.b5)); byte_cnt += sizeof(packet->dst_address.b5); //buffer += sizeof(packet->dst_address.b5);
+//	memcpy(&buffer[byte_cnt], packet->dst_address.b6, sizeof(packet->dst_address.b6)); byte_cnt += sizeof(packet->dst_address.b6); //buffer += sizeof(packet->dst_address.b6);
+//	memcpy(&buffer[byte_cnt], packet->dst_address.b7, sizeof(packet->dst_address.b7)); byte_cnt += sizeof(packet->dst_address.b7); //buffer += sizeof(packet->dst_address.b7);
+//
+//	memcpy(&buffer[byte_cnt], packet->tx_opts, sizeof(packet->tx_opts)); byte_cnt += sizeof(packet->tx_opts);
+//	for(std::vector<uint8_t>::iterator it = packet->payload.begin(); it != packet->payload.end(); ++it)
+//	{
+//		//os << *it;
+//        memcpy(&buffer[byte_cnt], *it, sizeof(*it));
+//        byte_cnt += sizeof(*it);
+//	}
+//	//os<<packet.checksum;
+//    memcpy(&buffer[byte_cnt], packet->checksum, sizeof(packet->checksum));
+//    byte_cnt += sizeof(packet->checksum);
+//
+//	return byte_cnt;
+//}
+uint16_t Tx64Packet::packet_buf()
 {
 	//uint64_t temp = packet.get_Address();
-	os<<packet.sf;
-	os<<packet.length;
-	os<<packet.API_frame_id;
-	os<<packet.seqno;
+	uint16_t byte_cnt;
 
-	//os<< temp;//dst_address;
-	/* Write out the Address */
-	os<<packet.dst_address.b0;
-	os<<packet.dst_address.b1;
-	os<<packet.dst_address.b2;
-	os<<packet.dst_address.b3;
-	os<<packet.dst_address.b4;
-	os<<packet.dst_address.b5;
-	os<<packet.dst_address.b6;
-	os<<packet.dst_address.b7;
+	memcpy(&tx_buffer[byte_cnt], &sf			, sizeof(sf			    ) ) ; byte_cnt += sizeof(sf			  );  //buffer += sizeof(packet->sf			);
+	memcpy(&tx_buffer[byte_cnt], &length		, sizeof(length		    ) ) ; byte_cnt += sizeof(length		  );  //buffer += sizeof(packet->length		); 
+	memcpy(&tx_buffer[byte_cnt], &API_frame_id  , sizeof(API_frame_id   ) ) ; byte_cnt += sizeof(API_frame_id );  //buffer += sizeof(packet->API_frame_id);  
+	memcpy(&tx_buffer[byte_cnt], &seqno         , sizeof(seqno		    ) ) ; byte_cnt += sizeof(seqno		  );  //buffer += sizeof(packet->seqno		); 
 
-	os<<packet.tx_opts;
-	for(std::vector<uint8_t>::iterator it = packet.payload.begin(); it != packet.payload.end(); ++it)
+	/* Writbuffer, e out the Address */                                                                                 //
+	memcpy(&tx_buffer[byte_cnt], &dst_address.b0, sizeof(dst_address.b0))   ; byte_cnt += sizeof(dst_address.b0); //buffer += sizeof(packet->dst_address.b0);
+	memcpy(&tx_buffer[byte_cnt], &dst_address.b1, sizeof(dst_address.b1))   ; byte_cnt += sizeof(dst_address.b1); //buffer += sizeof(packet->dst_address.b1);
+	memcpy(&tx_buffer[byte_cnt], &dst_address.b2, sizeof(dst_address.b2))   ; byte_cnt += sizeof(dst_address.b2); //buffer += sizeof(packet->dst_address.b2);
+	memcpy(&tx_buffer[byte_cnt], &dst_address.b3, sizeof(dst_address.b3))   ; byte_cnt += sizeof(dst_address.b3); //buffer += sizeof(packet->dst_address.b3);
+	memcpy(&tx_buffer[byte_cnt], &dst_address.b4, sizeof(dst_address.b4))   ; byte_cnt += sizeof(dst_address.b4); //buffer += sizeof(packet->dst_address.b4);
+	memcpy(&tx_buffer[byte_cnt], &dst_address.b5, sizeof(dst_address.b5))   ; byte_cnt += sizeof(dst_address.b5); //buffer += sizeof(packet->dst_address.b5);
+	memcpy(&tx_buffer[byte_cnt], &dst_address.b6, sizeof(dst_address.b6))   ; byte_cnt += sizeof(dst_address.b6); //buffer += sizeof(packet->dst_address.b6);
+	memcpy(&tx_buffer[byte_cnt], &dst_address.b7, sizeof(dst_address.b7))   ; byte_cnt += sizeof(dst_address.b7); //buffer += sizeof(packet->dst_address.b7);
+
+	memcpy(&tx_buffer[byte_cnt], &tx_opts, sizeof(tx_opts)); byte_cnt += sizeof(tx_opts);
+	for(std::vector<uint8_t>::iterator it = payload.begin(); it != payload.end(); ++it)
 	{
-		os << *it;
+		//os << *it;
+        //uint8_t temp = *it;
+		memcpy(&tx_buffer[byte_cnt], &(*it), sizeof(*it));
+		byte_cnt += sizeof(*it);
 	}
-	os<<packet.checksum;
+	//os<<packet.checksum;
+	memcpy(&tx_buffer[byte_cnt], &checksum, sizeof(checksum));
+	byte_cnt += sizeof(checksum);
 
-	return os;
+	return byte_cnt;
 }
 
 /**

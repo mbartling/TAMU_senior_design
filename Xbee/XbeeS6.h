@@ -45,7 +45,8 @@ class Tx64Packet
 //		unsigned long int get_Address();
 
 		void push_back(uint8_t byteMe);
-		friend std::ostream& operator<<(std::ostream& os, const Tx64Packet& packet);
+//		uint16_t operator<<( uint8_t* buffer, const Tx64Packet* packet);
+		uint16_t packet_buf();
 };
 
 
