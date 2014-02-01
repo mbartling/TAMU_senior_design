@@ -2,7 +2,7 @@
 #define XBEES6_H__
 #include "Arduino.h"
 #include <stdint.h>
-#include <ostream>
+//#include <ostream>
 #include "../Debug/general_debug.h"
 #include <vector>
 #include <string.h>
