@@ -1,6 +1,14 @@
 #include "Arduino.h"
 #include "XbeeS6.h"
 #include <iterator>
+
+#if DEBUG_MODE
+#include <stdio.h>
+#define PRINTF(...) printf(__VA_ARGS__)
+#else /* Not DEBUG_MODE */
+#define PRINTF(...) /* Dummy */
+#endif /* DEBUG_MODE */
+
 #define BYTE_MASK(inVal, offset) (uint8_t)((inVal >> offset) & 0xFF)
 
 int the_endianness;
