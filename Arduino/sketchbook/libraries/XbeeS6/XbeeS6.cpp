@@ -418,4 +418,118 @@ int RxPacket::Rx64Parse()
 	_msgQ.changeVal(2, (msgQLen >> 16) & 0xFF);
 	return i;
 }
+//===========================
+//Remote AT commands
 
+RemoteAT::RemoteAT() {
+	_seqno = 1;
+	_API_frame_id = 0x07;
+	memcpy(&_dst_address, &broadcastAddress, sizeof(broadcastAddress));
+}
+
+RemoteAT::RemoteAT(Address64_t* dst_address) {
+	_seqno = 1;
+	_API_frame_id = 0x07;
+	memcpy(&_dst_address, dst_address, sizeof(*dst_address));
+}
+
+int RemoteAT::calc_chkSum() {
+	uint8_t sum;
+		for(int i = 3; i < _sendBuff.size(); i++)
+		{
+			sum += _sendBuff[i];
+		}
+
+		sum = 0xFF - sum; // Final Part in checksum calculation
+		_checksum = sum;
+		return sum;
+}
+
+int RemoteAT::set_Address(uint64_t new_address) {
+	_dst_address.b0 = BYTE_MASK(new_address, 56);
+	_dst_address.b1 = BYTE_MASK(new_address, 48);
+	_dst_address.b2 = BYTE_MASK(new_address, 40);
+	_dst_address.b3 = BYTE_MASK(new_address, 32);
+	_dst_address.b4 = BYTE_MASK(new_address, 24);
+	_dst_address.b5 = BYTE_MASK(new_address, 16);
+	_dst_address.b6 = BYTE_MASK(new_address, 8);
+	_dst_address.b7 = BYTE_MASK(new_address, 0);
+
+	return _dst_address.b0 + _dst_address.b1 + _dst_address.b2 + _dst_address.b3 + _dst_address.b4 + _dst_address.b5 + _dst_address.b6 + _dst_address.b7;
+	/*
+	   dst_address = {new_address};
+	 */
+}
+
+uint64_t RemoteAT::get_Address() const {
+	uint64_t temp;
+		if(sizeof(temp) != sizeof(_dst_address))
+		{
+			PRINTF("Size of Address do not match!\n");
+			return -1;
+		}
+
+		memcpy(&temp, &_dst_address, sizeof(temp));
+		return temp;
+}
+
+void RemoteAT::push_back(uint8_t byteMe) {
+}
+
+void RemoteAT::clear_payload() {
+	_payload.clear();
+}
+void RemoteAT::clear_sendBuff() {
+	_sendBuff.clear();
+}
+void RemoteAT::clear() {
+	_payload.clear();
+	_sendBuff.clear();
+}
+
+uint16_t RemoteAT::prepare2send() {
+	_sendBuff.clear();
+
+	calcLength();
+
+	_sendBuff.push_back(0x7E);
+	_sendBuff.push_back(((_length >> 0 )& 0xFF));
+	_sendBuff.push_back(((_length >> 8 )& 0xFF));
+	_sendBuff.push_back(_API_frame_id);
+
+	_sendBuff.push_back(_API_frame_id);
+	_sendBuff.push_back(_dst_address.b0);
+	_sendBuff.push_back(_dst_address.b1);
+	_sendBuff.push_back(_dst_address.b2);
+	_sendBuff.push_back(_dst_address.b3);
+	_sendBuff.push_back(_dst_address.b4);
+	_sendBuff.push_back(_dst_address.b5);
+	_sendBuff.push_back(_dst_address.b6);
+	_sendBuff.push_back(_dst_address.b7);
+
+	_sendBuff.push_back(0x02);
+
+	for(int i = 0; i < _payload.size(); i++)
+	{
+		_sendBuff.push_back(_payload[i]);
+	}
+
+	calc_chkSum();
+	_sendBuff.push_back(_checksum);
+
+	return _sendBuff.size(); //Ready to send
+
+}
+
+
+
+uint8_t RemoteAT::getChecksum() const {
+	return _checksum;
+}
+
+uint16_t RemoteAT::getLength() const {
+	return _length;
+}
+void RemoteAT::calcLength() {
+	_length  = 11 + _payload.size(); //Doesnt count the AT command and the parameters
+}

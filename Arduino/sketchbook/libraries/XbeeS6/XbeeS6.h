@@ -143,4 +143,58 @@ public:
 
 };
 
+
+/**
+ * Remote AT Commands
+ * =================================================== */
+class RemoteAT
+{
+private:
+
+	uint16_t _length; //!< Number of bytes between length and Checksum
+	uint8_t _API_frame_id;
+	uint8_t _seqno;
+	Address64_t _dst_address;
+	uint8_t _tx_opts;
+	uVector _payload; //This will be the AT command and Parameter Value part of the API Packet
+	uint8_t _checksum;
+	uVector _sendBuff;
+
+public:
+
+	/**
+	 * Constructors
+	 */
+
+	RemoteAT();
+	RemoteAT(Address64_t *dst_address);
+	RemoteAT(const Tx64Packet& );
+
+	uint8_t operator[](int n){ return _sendBuff[n];}
+	const uint8_t operator[](int n) const {return _sendBuff[n]; }
+
+	int calc_chkSum();
+	int set_Address(uint64_t new_address);
+	uint64_t get_Address() const;
+	//		unsigned long int get_Address();
+
+	void push_back(uint8_t byteMe);
+	void clear_payload();
+	//		uint16_t operator<<( uint8_t* buffer, const Tx64Packet* packet);
+	uint16_t prepare2send();
+
+
+
+	uint8_t getChecksum() const ;
+
+
+	void calcLength();
+	uint16_t getLength() const ;
+
+	//void setLength(uint16_t length) ;
+
+	void clear_sendBuff() ;
+	void clear();
+};
+
 #endif /* XBEES6_H__ */
