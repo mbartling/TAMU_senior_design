@@ -328,7 +328,7 @@ int  RxPacket::process()
 		}
 	default:
 		clear();	//Clear the buffers
-		return -1; //API frame not supported
+		return -3; //API frame not supported
 	}
 }
 uint16_t RxPacket::prepare2send() {
