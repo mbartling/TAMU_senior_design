@@ -309,7 +309,22 @@ int  RxPacket::process()
 	switch(getApiFrameId())
 	{
 	case 0x80:
-		return Rx64Parse();
+		if( Rx64Parse() > 0){
+			clear_API_frame();
+			return 0x80;
+		}
+		else{
+			//This will be a secondary test for debugging
+			uint16_t msgQLen;
+			msgQLen = _msgQ[1] | (_msgQ[2] << 8);
+			if(_msgQ.size() > msgQLen)
+			{
+				clear();
+				return -2; //to signify the fail
+			}
+			clear(); //We couldnt parse properly so lets clear everything
+			return -1;
+		}
 	default:
 		clear();	//Clear the buffers
 		return -1; //API frame not supported
@@ -346,10 +361,12 @@ void RxPacket::clear() {
 int RxPacket::Rx64Parse()
 {
 	int i;
+	int msgQLen;
 	clear_msgQ();
 	_msgQ.push_back(_sf);
-	_msgQ.push_back(0xDE);
-	_msgQ.push_back(0xAD);
+	_msgQ.push_back(0xDE); //Dont forget to update this length in the end
+	_msgQ.push_back(0xAD); //These two entries will be the length of the msgQ
+
 	/* Put the address in the msg Q with command A*/
 	_msgQ.push_back(' ');
 	_msgQ.push_back('A');
@@ -391,6 +408,11 @@ int RxPacket::Rx64Parse()
 	// Put a newline to make it easier for us to parse in python
 	_msgQ.push_back('\n');
 
+	//Clean up
+	//todo Make sure that this is actually a 32 bit int and not a 16 bit int.
+	msgQLen = _msgQ.size();
+	_msgQ[1] = (msgQLen >> 24) & 0xFF;
+	_msgQ[2] = (msgQLen >> 16) & 0xFF;
 	return i;
 }
 
