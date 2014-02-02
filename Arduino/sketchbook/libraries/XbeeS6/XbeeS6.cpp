@@ -340,11 +340,11 @@ uint16_t RxPacket::packet_buf() const {
 }
 
 uint8_t RxPacket::getApiFrameId() const {
-	return _msgQ[0];
+	return _API_frame[0];
 }
 
 uint8_t RxPacket::getChecksum() const {
-	return _msgQ[ _length + 1];
+	return _API_frame[ _length + 1];
 }
 
 void RxPacket::clear_msgQ() {
