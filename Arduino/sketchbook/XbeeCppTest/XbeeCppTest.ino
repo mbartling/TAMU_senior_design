@@ -76,9 +76,18 @@ void loop()
   
   for(int jk = 0; jk <= rx_packet.getlength(); jk++)
   {
+   Serial.print(rx_packet[jk], BYTE); 
+  }
+    for(int jk = 0; jk <= rx_packet.getlength(); jk++)
+  {
    Serial.print(rx_packet[jk], HEX); 
   }
+  
+  rx_packet.clear();
+  //Serial.print('\n');
+  //Serial.println("Done!");
+
    k = 1;
   }
-
+  
 }
