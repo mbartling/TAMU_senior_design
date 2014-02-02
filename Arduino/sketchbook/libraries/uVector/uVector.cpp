@@ -82,8 +82,13 @@ void uVector::reserve(int newalloc)
 
 void uVector::clear()
 {
+
+	if(elem != NULL || sz != 0 || space != 0) //Or if space or sz != 0 (dont want to free something if it isnt there
+	{
+		free(elem);
+	}
 	sz = 0;
 	space = 0;
-	free(elem);
+
 }
 

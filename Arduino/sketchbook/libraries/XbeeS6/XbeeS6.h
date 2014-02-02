@@ -100,8 +100,7 @@ private:
 	uint16_t _length; //!< Number of bytes between length and Checksum
 	//		uint8_t _API_frame_id;
 	uVector _API_frame;
-//	uint8_t _checksum;
-//	uVector _Address;
+
 
 //protected:
 	uVector _msgQ;
@@ -122,14 +121,12 @@ public:
 	void set_length(uint8_t lenH, uint8_t lenL);
 	uint16_t getlength() const ;
 
-//	int set_Address(int offset, int numbytes); //{push back the address vector
-//	uint64_t get_Address();
-//	void clear_Address();
 
-	void push_back(uint8_t byteMe);
+	void push_back(uint8_t byteMe); //Fill the receive buffer
 	uint16_t prepare2send(); //To NUC
 	uint16_t packet_buf() const;
 
+	int process();
 	uint8_t getApiFrameId() const ; //API_frame[0]
 
 
@@ -138,6 +135,11 @@ public:
 	void clear_msgQ();
 	void clear_API_frame();
 	void clear(); //clear all buffers
+
+	/**
+	 * Parsing Methods
+	 */
+	int Rx64Parse();
 
 };
 

@@ -11,6 +11,8 @@
 
 #define BYTE_MASK(inVal, offset) (uint8_t)((inVal >> offset) & 0xFF)
 
+#define PROCESS_COMMANDS() /* DUMMY */
+
 int the_endianness;
 
 /**
@@ -274,8 +276,121 @@ void Tx64Packet::setTxOpts(uint8_t txOpts) {
 	_tx_opts = txOpts;
 }
 
+
 /*===============================================*/
 /* Begin RX Code */
 /*===============================================*/
 
+
+RxPacket::RxPacket() {
+	_sf = 0x7E;
+	_length = 0;
+}
+
+void RxPacket::set_length(uint16_t length) {
+
+	_length = length;
+}
+
+void RxPacket::set_length(uint8_t lenH, uint8_t lenL) {
+	_length = ((uint16_t) lenL) | ( lenH ) ; //Will this cheat the byteswap just with casting?
+}
+
+uint16_t RxPacket::getlength() const {
+	return _length;
+}
+
+void RxPacket::push_back(uint8_t byteMe) {
+	_API_frame.push_back(byteMe);
+}
+
+int  RxPacket::process()
+{
+	switch(getApiFrameId())
+	{
+	case 0x80:
+		return Rx64Parse();
+	default:
+		clear();	//Clear the buffers
+		return -1; //API frame not supported
+	}
+}
+uint16_t RxPacket::prepare2send() {
+}
+
+uint16_t RxPacket::packet_buf() const {
+}
+
+uint8_t RxPacket::getApiFrameId() const {
+	return _msgQ[0];
+}
+
+uint8_t RxPacket::getChecksum() const {
+	return _msgQ[ _length + 1];
+}
+
+void RxPacket::clear_msgQ() {
+	_msgQ.clear();
+}
+
+void RxPacket::clear_API_frame() {
+	_API_frame.clear();
+}
+
+void RxPacket::clear() {
+	_API_frame.clear();
+	_msgQ.clear();
+}
+
+//return the number of bytes packed into the Queue (not counting the commands chars)
+int RxPacket::Rx64Parse()
+{
+	int i;
+	clear_msgQ();
+	_msgQ.push_back(_sf);
+	_msgQ.push_back(0xDE);
+	_msgQ.push_back(0xAD);
+	/* Put the address in the msg Q with command A*/
+	_msgQ.push_back(' ');
+	_msgQ.push_back('A');
+
+	//offset 8 + 1
+	for(i = 1; i < 9; i++)
+	{
+		_msgQ.push_back(_API_frame[i]);
+	}
+
+	/* Write the RSSI information */
+	_msgQ.push_back(' ');
+	_msgQ.push_back('R');
+//	i++; //want to increment i
+	_msgQ.push_back(_API_frame[i]);
+
+	//skip the options byte
+	i += 2;
+
+	/* Push the RF Data*/
+	_msgQ.push_back(' ');
+	_msgQ.push_back('D');
+
+	while(i <= _length)
+	{
+		/**
+		 * NOTE: This is where we would put the process commands function
+		 */
+		if(i > _length)
+		{
+			break;
+		}
+		PROCESS_COMMANDS();
+
+		_msgQ.push_back( _API_frame[i] );
+		i++;
+	}
+
+	// Put a newline to make it easier for us to parse in python
+	_msgQ.push_back('\n');
+
+	return i;
+}
 
