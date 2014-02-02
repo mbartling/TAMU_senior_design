@@ -39,6 +39,7 @@ public:
 	void reserve(int newalloc);
 
 	// For memory management
+	void changeVal(int i, uint8_t newval);
 	void clear();
 };
 

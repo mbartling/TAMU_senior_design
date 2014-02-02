@@ -310,6 +310,7 @@ int  RxPacket::process()
 	{
 	case 0x80:
 		if( Rx64Parse() > 0){
+			_length = _msgQ.size();
 			clear_API_frame();
 			return 0x80;
 		}
@@ -317,7 +318,7 @@ int  RxPacket::process()
 			//This will be a secondary test for debugging
 			uint16_t msgQLen;
 			msgQLen = _msgQ[1] | (_msgQ[2] << 8);
-			if(_msgQ.size() > msgQLen)
+			if((uint16_t) _msgQ.size() > msgQLen)
 			{
 				clear();
 				return -2; //to signify the fail
@@ -331,9 +332,11 @@ int  RxPacket::process()
 	}
 }
 uint16_t RxPacket::prepare2send() {
+	return 0;
 }
 
 uint16_t RxPacket::packet_buf() const {
+	return 0;
 }
 
 uint8_t RxPacket::getApiFrameId() const {
@@ -411,8 +414,8 @@ int RxPacket::Rx64Parse()
 	//Clean up
 	//todo Make sure that this is actually a 32 bit int and not a 16 bit int.
 	msgQLen = _msgQ.size();
-	_msgQ[1] = (msgQLen >> 24) & 0xFF;
-	_msgQ[2] = (msgQLen >> 16) & 0xFF;
+	_msgQ.changeVal(1, (msgQLen >> 24) & 0xFF);
+	_msgQ.changeVal(2, (msgQLen >> 16) & 0xFF);
 	return i;
 }
 

@@ -79,7 +79,13 @@ void uVector::reserve(int newalloc)
 	space = newalloc;
 
 }
-
+void uVector::changeVal(int i, uint8_t newval)
+{
+	if(i <= sz)
+	{
+		elem[i] = newval;
+	}
+}
 void uVector::clear()
 {
 
