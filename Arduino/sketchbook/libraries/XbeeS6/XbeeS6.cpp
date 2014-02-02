@@ -293,7 +293,7 @@ void RxPacket::set_length(uint16_t length) {
 }
 
 void RxPacket::set_length(uint8_t lenH, uint8_t lenL) {
-	_length = ((uint16_t) lenL) | ( lenH ) ; //Will this cheat the byteswap just with casting?
+	_length = ((uint16_t) lenH) | ( lenL ) ; //Will this cheat the byteswap just with casting?
 }
 
 uint16_t RxPacket::getlength() const {
