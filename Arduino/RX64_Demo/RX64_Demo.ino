@@ -35,6 +35,7 @@ void setup()
   //from api_try.ino
   //xbee.setSerial(Uart);
   //xbee.begin(BAUD_RATE)
+  Uart.flush();
   Serial.println("Starting the Receiver!");
 }
 
@@ -72,7 +73,7 @@ void simpleXbeeRead()
 {
 	//Begin Actual read 
 	//if(Uart.available() > 20) //Get at least something in the buffer
-        if(Uart.available() >= 21)
+        if(Uart.available() >= 2)
 	{
 	  /* 7E is the start frame of our packet */
 		if(Uart.read()==0x7E)
@@ -107,10 +108,10 @@ void simpleXbeeRead()
                         Serial.print("R ");
                         Serial.print(api_fd[8]); //RSSI
                         
-                        Serial.print('\n');
+                        Serial.println();
 		}
 
-
+                Uart.flush();
 
 	}
 
