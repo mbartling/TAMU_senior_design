@@ -156,7 +156,7 @@ Tx64Packet::Tx64Packet(uint8_t seqno) {
 
 Tx64Packet::Tx64Packet(uint8_t seqno, Address64_t* dst_address) {
 	_sf = 0x7E;
-	_length = 11;
+
 	_API_frame_id = 0x00;
 	_seqno = seqno;
 	memcpy(&_dst_address, dst_address, sizeof(*dst_address));
@@ -263,6 +263,7 @@ uint8_t Tx64Packet::getTxOpts() const {
 
 uint16_t Tx64Packet::prepare2send() {
 
+	_length = 11;
 	calc_chkSum();
 	return packet_buf();
 
@@ -270,6 +271,7 @@ uint16_t Tx64Packet::prepare2send() {
 
 void Tx64Packet::clear_payload() {
 	_payload.clear();
+	_length = 11;
 }
 
 void Tx64Packet::setTxOpts(uint8_t txOpts) {
