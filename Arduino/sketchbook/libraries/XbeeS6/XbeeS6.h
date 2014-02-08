@@ -140,6 +140,7 @@ public:
 	 * Parsing Methods
 	 */
 	int Rx64Parse();
+	int ATResonseParse();
 
 };
 
