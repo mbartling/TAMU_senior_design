@@ -63,9 +63,12 @@ void loop()
   if(k == 0)
   {
   Serial.println("Testing Rx Capabilities!");
-  
-  rx_packet.set_length(0x0010);
-  for(int jk = 3; jk < 20; jk++)
+  uint16_t length = (dummyRx[2] | dummyRx[1] << 8);
+  Serial.println(length, HEX);
+  rx_packet.set_length(dummyRx[1], dummyRx[2]);
+  Serial.println(rx_packet.getlength(), HEX);
+  //offset in the packet stuff
+  for(int jk = 3; jk < rx_packet.getlength() + 3 + 1; jk++)
   {
      rx_packet.push_back( dummyRx[jk]);
   }
