@@ -6,8 +6,8 @@
    This example code is in the public domain.
 */
 
-
-unsigned long baud = 9600;
+#define BAUD_RATE 115200
+unsigned long baud = 115200;
 HardwareSerial Uart = HardwareSerial();
 const int reset_pin = 4;
 const int led_pin = 11;  // 11=Teensy 2.0, 6=Teensy 1.0, 16=Benito
@@ -20,8 +20,8 @@ void setup()
 	digitalWrite(led_pin, led_off);
 	digitalWrite(reset_pin, HIGH);
 	pinMode(reset_pin, OUTPUT);
-	Serial.begin(baud);	// USB, communication to PC or Mac
-	Uart.begin(baud);	// UART, communication to Dorkboard
+	Serial.begin(BAUD_RATE);	// USB, communication to PC or Mac
+	Uart.begin(BAUD_RATE);	// UART, communication to Dorkboard
 }
 
 long led_on_time=0;

@@ -8,7 +8,7 @@
  */
 
 
-#define BAUD_RATE 57600
+#define BAUD_RATE 115200
 
 /*Declare serial ports */
 //Xbee xbee = Xbee();
@@ -25,7 +25,7 @@ const int reset_pin = 4;
 const int led_pin = 11;  // 11=Teensy 2.0, 6=Teensy 1.0, 16=Benito
 const int led_on = HIGH;
 const int led_off = LOW;
-unsigned long baud = 57600;
+unsigned long baud = 115200;
 
 HardwareSerial Uart = HardwareSerial();
 
@@ -89,6 +89,14 @@ if( enable == 1)
 	
 	//simpleXbeeRead();
 	//flashLed(statusLed, 1, 100);
+	if (Uart.available()) {
+		c = Uart.read();
+                if(c == 0x7E) Serial.println();
+		Serial.print(c,HEX);
+		digitalWrite(led_pin, led_on);
+		led_on_time = millis();
+		return;
+	}
 }
 else if( enable == 0)
 {
