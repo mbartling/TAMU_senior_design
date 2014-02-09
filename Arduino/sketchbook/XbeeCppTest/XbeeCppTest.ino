@@ -21,9 +21,17 @@ uVector myvector;
 uint8_t * tx_buffer1;
 
 HardwareSerial Uart = HardwareSerial();
-
+unsigned long baud = 9600;
+const int reset_pin = 4;
+const int led_pin = 11;  // 11=Teensy 2.0, 6=Teensy 1.0, 16=Benito
+const int led_on = HIGH;
+const int led_off = LOW;
 void setup()
 {
+  pinMode(led_pin, OUTPUT);
+	digitalWrite(led_pin, led_off);
+	digitalWrite(reset_pin, HIGH);
+	pinMode(reset_pin, OUTPUT);
   Serial.begin(BAUD_RATE);
   Serial.println("Starting the Receiver!");
   
@@ -44,20 +52,34 @@ void setup()
   tx_buffer1 = get_buffer();
   
   Uart.begin(BAUD_RATE);
+  Uart.flush();
 }
 int j = 0;
 int k = 0;
+int enable = 1;
+long led_on_time=0;
 void loop()
 {
+  unsigned char c, dtr;
+	static unsigned char prev_dtr = 0;
   delay(2000);
   //while(j <  20)
   //{
-  
+  if (Serial.available()) {
+	c = Serial.read();
+	Uart.write(c);
+	digitalWrite(led_pin, led_on);
+	led_on_time = millis();
+	return;
+	}
+if(enable)
+{
   uint16_t length = tx_packet.prepare2send();
   uint16_t i;
   for(i = 0; i < length; i++)
   {
-    Uart.print(tx_buffer1[i], BYTE);
+    //Uart.print(tx_buffer1[i], BYTE);
+    Uart.write(tx_buffer1[i]);
 
   }
   for(i = 0; i < length; i++)
@@ -71,6 +93,45 @@ void loop()
   j++;
   tx_packet.clear_payload();
   tx_packet.push_back( (uint8_t) j);
+  Uart.flush();
+  Serial.println("response");
+  while(Uart.available())
+	{
+
+		Serial.print(Uart.read(),HEX);
+		Serial.print(" ");
+	}
+  Serial.println("EOR");
+//  tx_packet.push_back( (uint8_t) j+1);
+}
+    dtr = Serial.dtr();
+	if (dtr && !prev_dtr) {
+		digitalWrite(reset_pin, LOW);
+		delayMicroseconds(250);
+		digitalWrite(reset_pin, HIGH);
+	}
+	prev_dtr = dtr;
+	if (millis() - led_on_time > 3) {
+		digitalWrite(led_pin, led_off);
+	}
+	if (Serial.baud() != baud) {
+		baud = Serial.baud();
+		if (baud == 57600) {
+			// This ugly hack is necessary for talking
+			// to the arduino bootloader, which actually
+			// communicates at 58824 baud (+2.1% error).
+			// Teensyduino will configure the UART for
+			// the closest baud rate, which is 57143
+			// baud (-0.8% error).  Serial communication
+			// can tolerate about 2.5% error, so the
+			// combined error is too large.  Simply
+			// setting the baud rate to the same as
+			// arduino's actual baud rate works.
+			Uart.begin(58824);
+		} else {
+			Uart.begin(baud);
+		}
+}
  // }
   
 //  if(k == 0)
