@@ -18,7 +18,7 @@ Tx64Packet tx_packet;
 RxPacket rx_packet;
 
 uVector myvector;
-uint8_t * tx_buffer1;
+static uint8_t * tx_buffer1;
 
 HardwareSerial Uart = HardwareSerial();
 unsigned long baud = 9600;
@@ -35,8 +35,8 @@ void setup()
   Serial.begin(BAUD_RATE);
   Serial.println("Starting the Receiver!");
   
-  tx_packet.set_Address(0x00000000C0A801C8);  
-//  tx_packet.set_Address(0x00000000FFFFFFFF);
+  tx_packet.set_Address(0x00000000C0A80165);  
+  //tx_packet.set_Address(0x00000000FFFFFFFF);
   tx_packet.push_back(0x15);
   tx_packet.push_back(0x16);
   myvector.push_back(0x15);
@@ -56,29 +56,35 @@ void setup()
 }
 int j = 0;
 int k = 0;
-int enable = 1;
+volatile int enable = 1;
 long led_on_time=0;
 void loop()
 {
   unsigned char c, dtr;
 	static unsigned char prev_dtr = 0;
-  delay(2000);
+
   //while(j <  20)
   //{
   if (Serial.available()) {
+    //Uart.flush();
+    enable = 0;
 	c = Serial.read();
+    if(c == '$' ) enable  =1;
+    if(c == '^') Uart.flush();
 	Uart.write(c);
 	digitalWrite(led_pin, led_on);
 	led_on_time = millis();
 	return;
 	}
-if(enable)
+if(enable == 1)
 {
+    delay(2000);
   uint16_t length = tx_packet.prepare2send();
   uint16_t i;
   for(i = 0; i < length; i++)
   {
     //Uart.print(tx_buffer1[i], BYTE);
+//    delayMicroseconds(10);
     Uart.write(tx_buffer1[i]);
 
   }
@@ -103,6 +109,16 @@ if(enable)
 	}
   Serial.println("EOR");
 //  tx_packet.push_back( (uint8_t) j+1);
+}
+else if(enable == 0)
+{
+ if (Uart.available()) {
+		c = Uart.read();
+		Serial.write(c);
+		digitalWrite(led_pin, led_on);
+		led_on_time = millis();
+		return;
+	} 
 }
     dtr = Serial.dtr();
 	if (dtr && !prev_dtr) {
