@@ -56,11 +56,11 @@ void setup()
 }
 int j = 0;
 int k = 0;
-//volatile int enable;
+volatile int enable;
 long led_on_time=0;
 void loop()
 {
-  static int enable;
+  //static int enable;
   unsigned char c, dtr;
 	static unsigned char prev_dtr = 0;
 
