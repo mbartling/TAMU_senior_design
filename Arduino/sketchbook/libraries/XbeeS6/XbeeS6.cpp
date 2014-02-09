@@ -263,7 +263,7 @@ uint8_t Tx64Packet::getTxOpts() const {
 
 uint16_t Tx64Packet::prepare2send() {
 
-	_length = 11;
+
 	calc_chkSum();
 	return packet_buf();
 
@@ -305,9 +305,17 @@ uint16_t RxPacket::getlength() const {
 void RxPacket::push_back(uint8_t byteMe) {
 	_API_frame.push_back(byteMe);
 }
-
+uint8_t RxPacket::getApiFrame(int i)
+{
+	return _API_frame[i];
+}
+const uint8_t RxPacket::getApiFrame(int i) const
+{
+	return _API_frame[i];
+}
 int  RxPacket::process()
 {
+	if(_length == 0 ) return -4;
 	switch(getApiFrameId())
 	{
 	case 0x80:
@@ -376,6 +384,7 @@ void RxPacket::clear_API_frame() {
 }
 
 void RxPacket::clear() {
+	_length = 0;
 	_API_frame.clear();
 	_msgQ.clear();
 }
@@ -439,6 +448,10 @@ int RxPacket::Rx64Parse()
 	return i;
 }
 
+
+void RxPacket::resize(int newsize) {
+	_API_frame.reserve(newsize);
+}
 
 int  RxPacket::ATResonseParse()
 {

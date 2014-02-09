@@ -128,10 +128,11 @@ public:
 
 	int process();
 	uint8_t getApiFrameId() const ; //API_frame[0]
-
+	uint8_t getApiFrame(int i) ;
+	const uint8_t getApiFrame(int i) const;
 
 	uint8_t getChecksum() const ; //API_frame[length];
-
+	void resize(int newsize);
 	void clear_msgQ();
 	void clear_API_frame();
 	void clear(); //clear all buffers

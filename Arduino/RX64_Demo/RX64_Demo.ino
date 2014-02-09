@@ -8,7 +8,7 @@
  */
 
 
-#define BAUD_RATE 9600
+#define BAUD_RATE 57600
 
 /*Declare serial ports */
 //Xbee xbee = Xbee();
@@ -21,22 +21,34 @@ int statusLed 	   = 6;
 int errorLed 	   = 6;
 uint8_t api_id;
 uint8_t api_fd[128];
+const int reset_pin = 4;
+const int led_pin = 11;  // 11=Teensy 2.0, 6=Teensy 1.0, 16=Benito
+const int led_on = HIGH;
+const int led_off = LOW;
+unsigned long baud = 57600;
+
 HardwareSerial Uart = HardwareSerial();
 
 void simpleXbeeRead();
 
 void setup()
 {
-  pinMode(statusLed, OUTPUT);
-  pinMode(errorLed, OUTPUT);
-
-  Serial.begin(BAUD_RATE);
-  Uart.begin(BAUD_RATE);
+  //pinMode(statusLed, OUTPUT);
+  //pinMode(errorLed, OUTPUT);
+  pinMode(led_pin, OUTPUT);
+	digitalWrite(led_pin, led_off);
+	digitalWrite(reset_pin, HIGH);
+	pinMode(reset_pin, OUTPUT);
+//  Serial.begin(BAUD_RATE);
+//  Uart.begin(BAUD_RATE);
+	Serial.begin(BAUD_RATE);	// USB, communication to PC or Mac
+	Uart.begin(BAUD_RATE);	// UART, communication to Dorkboard
   //from api_try.ino
   //xbee.setSerial(Uart);
   //xbee.begin(BAUD_RATE)
+    Serial.println("Starting the Receiver!");
   Uart.flush();
-  Serial.println("Starting the Receiver!");
+
 }
 
 void flashLed(int pin, int times, int wait) {
@@ -52,15 +64,71 @@ void flashLed(int pin, int times, int wait) {
 	}
 }
 
-
+ long led_on_time=0;
+volatile int enable = 1;
 void loop()
 {
 	//Do other functions here
 	//
-	
-	simpleXbeeRead();
-	flashLed(statusLed, 1, 100);
+unsigned char c, dtr;
+	static unsigned char prev_dtr = 0;
 
+	if (Serial.available()) {
+                enable = 0;
+		c = Serial.read();
+                if(c == '$') enable = 1;
+                if(c == '^') Uart.flush();
+                
+		Uart.write(c);
+		digitalWrite(led_pin, led_on);
+		led_on_time = millis();
+		return;
+	}
+if( enable == 1)
+{
+	
+	//simpleXbeeRead();
+	//flashLed(statusLed, 1, 100);
+}
+else if( enable == 0)
+{
+	if (Uart.available()) {
+		c = Uart.read();
+		Serial.write(c);
+		digitalWrite(led_pin, led_on);
+		led_on_time = millis();
+		return;
+	}
+}
+
+	dtr = Serial.dtr();
+	if (dtr && !prev_dtr) {
+		digitalWrite(reset_pin, LOW);
+		delayMicroseconds(250);
+		digitalWrite(reset_pin, HIGH);
+	}
+	prev_dtr = dtr;
+	if (millis() - led_on_time > 3) {
+		digitalWrite(led_pin, led_off);
+	}
+	if (Serial.baud() != baud) {
+		baud = Serial.baud();
+		if (baud == 57600) {
+			// This ugly hack is necessary for talking
+			// to the arduino bootloader, which actually
+			// communicates at 58824 baud (+2.1% error).
+			// Teensyduino will configure the UART for
+			// the closest baud rate, which is 57143
+			// baud (-0.8% error).  Serial communication
+			// can tolerate about 2.5% error, so the
+			// combined error is too large.  Simply
+			// setting the baud rate to the same as
+			// arduino's actual baud rate works.
+			Uart.begin(58824);
+		} else {
+			Uart.begin(baud);
+		}
+	}
 }
 
 /**
@@ -69,8 +137,10 @@ void loop()
  *
  *
  */
+
 void simpleXbeeRead()
 {
+  	
 	//Begin Actual read 
 	//if(Uart.available() > 20) //Get at least something in the buffer
         if(Uart.available() >= 2)

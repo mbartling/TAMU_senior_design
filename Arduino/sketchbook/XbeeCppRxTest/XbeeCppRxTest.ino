@@ -44,66 +44,105 @@ void setup()
   tx_buffer1 = get_buffer();
   
   Uart.begin(BAUD_RATE);
+  Uart.flush();
 }
 int j = 0;
 int k = 0;
 void loop()
 {
-  delay(2000);
-  //while(j <  20)
-  //{
-  
-  uint16_t length = tx_packet.prepare2send();
-  uint16_t i;
-  for(i = 0; i < length; i++)
-  {
-    Uart.print(tx_buffer1[i], BYTE);
-
-  }
-  for(i = 0; i < length; i++)
-  {
-    
-
-    Serial.print(tx_buffer1[i], HEX); 
-    Serial.print(" ");
-  }
-  Serial.println(' ');
-  j++;
-  tx_packet.clear_payload();
-  tx_packet.push_back( (uint8_t) j);
- // }
-  
-//  if(k == 0)
-//  {
-//  Serial.println("Testing Rx Capabilities!");
-//  uint16_t length = (dummyRx[2] | dummyRx[1] << 8);
-//  Serial.println(length, HEX);
-//  rx_packet.set_length(dummyRx[1], dummyRx[2]);
-//  Serial.println(rx_packet.getlength(), HEX);
-//  //offset in the packet stuff
-//  for(int jk = 3; jk < rx_packet.getlength() + 3 + 1; jk++)
-//  {
-//     rx_packet.push_back( dummyRx[jk]);
-//  }
+//  delay(2000);
+//  //while(j <  20)
+//  //{
 //  
-//  int status = rx_packet.process();
-//  Serial.print("RX parsing returned: ");
-//  Serial.println(status, HEX);
-//  
-//  for(int jk = 0; jk <= rx_packet.getlength(); jk++)
+//  uint16_t length = tx_packet.prepare2send();
+//  uint16_t i;
+//  for(i = 0; i < length; i++)
 //  {
-//   Serial.print(rx_packet[jk], BYTE); 
-//  }
-//    for(int jk = 0; jk <= rx_packet.getlength(); jk++)
-//  {
-//   Serial.print(rx_packet[jk], HEX); 
-//  }
-//  
-//  rx_packet.clear();
-//  //Serial.print('\n');
-//  //Serial.println("Done!");
+//    Uart.print(tx_buffer1[i], BYTE);
 //
-//   k = 1;
 //  }
+//  for(i = 0; i < length; i++)
+//  {
+//    
+//
+//    Serial.print(tx_buffer1[i], HEX); 
+//    Serial.print(" ");
+//  }
+//  Serial.println(' ');
+//  j++;
+//  tx_packet.clear_payload();
+//  tx_packet.push_back( (uint8_t) j);
+// // }
+  if(Uart.available() >= 14)
+  {
+    myvector.clear();
+  if(Uart.read() == 0x7E)
+  {
+    delay(1);
+   // while(1) { if(Uart.available() > 2) break; }
+    uint8_t lenH = Uart.read();
+        delay(1);
+    uint8_t lenL = Uart.read();
+  uint16_t length = ((uint16_t)lenL | (uint16_t) lenH  << 8);
   
+  rx_packet.set_length(lenH, lenL);
+  
+  //offset in the packet stuff
+  //for(int jk = 0; jk < rx_packet.getlength() + 1; jk++)
+  int jk;
+  //while(jk < rx_packet.getlength() + 1)
+  //while(1) { if(Uart.available() > length) break; }
+  while(jk < length + 1)
+  {
+     uint8_t temp = Uart.read();
+     rx_packet.push_back( temp );
+     delay(1);
+     jk++;
+  }
+  Serial.print("length = ");
+  Serial.println(length, HEX);
+  //Serial.println("Setting Rx packet length");
+  //Serial.println(rx_packet.getlength(), HEX);
+ // Serial.print("API Frame Id is: ");
+ // Serial.println(rx_packet.getApiFrameId(), HEX);
+  
+  for(int i = 0; i< length; i++)
+  {
+     //Serial.print(rx_packet.getApiFrame(i) , HEX);
+     myvector.push_back(rx_packet.getApiFrame(i));
+//     Serial.print(" "); 
+  }
+  Serial.println();
+  int status = rx_packet.process();
+  Serial.print("RX parsing returned: ");
+  Serial.println(status);
+  
+  for(int jk = 0; jk <= rx_packet.getlength(); jk++)
+  {
+   Serial.print(rx_packet[jk], BYTE); 
+  }
+    for(int jk = 0; jk <= rx_packet.getlength(); jk++)
+  {
+   Serial.print(rx_packet[jk], HEX); 
+  }
+  Serial.println();
+  rx_packet.clear();
+  //Serial.print('\n');
+  //Serial.println("Done!");
+
+    Uart.flush();
+  }
+
+  }
+  if(myvector.size() > 0)
+  {
+    for(int i = 0; i< length; i++)
+  {
+     //Serial.print(rx_packet.getApiFrame(i) , HEX);
+     myvector.push_back(rx_packet.getApiFrame(i));
+//     Serial.print(" "); 
+  }
+  Serial.println();
+ myvector.clear(); 
+  }
 }
