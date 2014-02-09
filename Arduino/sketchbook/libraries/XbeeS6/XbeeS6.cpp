@@ -97,7 +97,7 @@ int Tx64Packet::calc_chkSum()
 	sum += _dst_address.b3;		
 	sum += _dst_address.b4;		
 	sum += _dst_address.b5;		
-	sum += _dst_address.b6;		
+	sum += _dst_address.b6;
 	sum += _dst_address.b7;
 	sum += _tx_opts;
 
