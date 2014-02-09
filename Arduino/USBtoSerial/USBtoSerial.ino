@@ -22,6 +22,7 @@ void setup()
 	pinMode(reset_pin, OUTPUT);
 	Serial.begin(baud);	// USB, communication to PC or Mac
 	Uart.begin(baud);	// UART, communication to Dorkboard
+        Uart.flush();
 }
 
 long led_on_time=0;
