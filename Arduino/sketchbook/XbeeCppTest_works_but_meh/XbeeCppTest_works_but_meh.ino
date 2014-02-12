@@ -6,7 +6,7 @@
 //#include <XBeeS6.h>
 
 //#include "XbeeS6.h"
-#define BAUD_RATE 115200
+#define BAUD_RATE 9600
 
 uint8_t my_buffer[20];
 
@@ -21,7 +21,7 @@ uVector myvector;
 static uint8_t * tx_buffer1;
 
 HardwareSerial Uart = HardwareSerial();
-unsigned long baud = 115200;
+unsigned long baud = 9600;
 const int reset_pin = 4;
 const int led_pin = 11;  // 11=Teensy 2.0, 6=Teensy 1.0, 16=Benito
 const int led_on = HIGH;
@@ -35,6 +35,7 @@ void setup()
   Serial.begin(BAUD_RATE);
   Serial.println("Starting the Receiver!");
   
+
   tx_packet.set_Address(0x00000000C0A80165);  
   //tx_packet.set_Address(0x00000000FFFFFFFF);
   tx_packet.push_back(0x15);
@@ -52,21 +53,14 @@ void setup()
   tx_buffer1 = get_buffer();
   
   Uart.begin(BAUD_RATE);
-  
-  Serial.println("=======================");
-  Serial.println("?: for Receive mode HEX");
-  Serial.println("#: for Receive mode BYTE (for Config)");
-  Serial.println("$: for TX Mode");
-  Serial.println("=======================");
   Uart.flush();
 }
 int j = 0;
 int k = 0;
-volatile int enable;
+volatile int enable = 1;
 long led_on_time=0;
 void loop()
 {
-  //static int enable;
   unsigned char c, dtr;
 	static unsigned char prev_dtr = 0;
 
@@ -74,12 +68,10 @@ void loop()
   //{
   if (Serial.available()) {
     //Uart.flush();
+    enable = 0;
 	c = Serial.read();
-    if(c == '?') {enable = 3; return;}
-
-    if(c == '$' ) {enable  =1; return;}
-    if(c == '#' ) {enable = 2; return; }
-    if(c == '^') {Uart.flush(); return; }
+    if(c == '$' ) enable  =1;
+    if(c == '^') Uart.flush();
 	Uart.write(c);
 	digitalWrite(led_pin, led_on);
 	led_on_time = millis();
@@ -87,7 +79,7 @@ void loop()
 	}
 if(enable == 1)
 {
-    delay(2000);
+    delay(500);
   uint16_t length = tx_packet.prepare2send();
   uint16_t i;
   for(i = 0; i < length; i++)
@@ -119,26 +111,11 @@ if(enable == 1)
   Serial.println("EOR");
 //  tx_packet.push_back( (uint8_t) j+1);
 }
-//else
-if(enable == 2) //For command mode use write for repsponse use print
+else if(enable == 0)
 {
  if (Uart.available()) {
 		c = Uart.read();
 		Serial.write(c);
-                digitalWrite(led_pin, led_on);
-		led_on_time = millis();
-		return;
-	} 
-}
-//else 
-if(enable == 3) //For command mode use write for repsponse use print
-{
- if (Uart.available()) {
-		c = Uart.read();
-//		Serial.write(c);
-                if(c == 0x7E) Serial.println();
-                Serial.print(c, HEX);
-                Serial.print(" ");
 		digitalWrite(led_pin, led_on);
 		led_on_time = millis();
 		return;
