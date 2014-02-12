@@ -22,14 +22,16 @@ if xbee.isOpen:
 	for line in xbee:
 		line = line.strip()
 		packet = line.split()
-		
-		sf = packet[0]
-		address = packet[4:12]
-		addressH = int(packet[8:12], 16) #convert to int
-		rssi = packet[12]
-		payload = packet[13:]
-		if sf == '7E':
-			print addressH , " RSSI = ", rssi
+		if len(packet) > 1:
+
+			sf = packet[0]
+			#address = packet[4:12]
+			#addressH = int(packet[8:12], 16) #convert to int
+			addressH = packet[8:12] #convert to int
+			rssi = packet[12]
+			#payload = packet[13:]
+			if sf == '7E':
+				print addressH , " RSSI = ", rssi
 
 print "Closing Xbee Port"
 

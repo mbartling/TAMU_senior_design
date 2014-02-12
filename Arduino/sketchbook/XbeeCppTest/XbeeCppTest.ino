@@ -147,8 +147,8 @@ if(enable == 3) //For command mode use write for repsponse use print
 		c = Uart.read();
 //		Serial.write(c);
                  current_time = now();
-                Serial.print("current time: ");
-                Serial.println(current_time);
+                //Serial.print("current time: ");
+                //Serial.println(current_time);
                 if(c == 0x7E) Serial.println();
                 Serial.print(c, HEX);
                 Serial.print(" ");
