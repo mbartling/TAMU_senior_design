@@ -93,6 +93,7 @@ if( enable == 1)
 		c = Uart.read();
                 if(c == 0x7E) Serial.println();
 		Serial.print(c,HEX);
+                Serial.print(" ");
 		digitalWrite(led_pin, led_on);
 		led_on_time = millis();
 		return;

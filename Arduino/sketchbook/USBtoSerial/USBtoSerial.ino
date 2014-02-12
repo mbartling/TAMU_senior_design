@@ -6,7 +6,7 @@
    This example code is in the public domain.
 */
 
-#define BAUD_RATE 115200
+
 unsigned long baud = 115200;
 HardwareSerial Uart = HardwareSerial();
 const int reset_pin = 4;
@@ -20,11 +20,9 @@ void setup()
 	digitalWrite(led_pin, led_off);
 	digitalWrite(reset_pin, HIGH);
 	pinMode(reset_pin, OUTPUT);
-	Serial.begin(BAUD_RATE);	// USB, communication to PC or Mac
-	Uart.begin(BAUD_RATE);	// UART, communication to Dorkboard
-        Serial.println("Starting USB to Serial");
+	Serial.begin(baud);	// USB, communication to PC or Mac
+	Uart.begin(baud);	// UART, communication to Dorkboard
         Uart.flush();
-        
 }
 
 long led_on_time=0;
