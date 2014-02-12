@@ -32,13 +32,15 @@ volatile time_t start_time;
 time_t current_time;
 void setup()
 {
-  start_time = now();
+  //start_time = now();
+  
   pinMode(led_pin, OUTPUT);
 	digitalWrite(led_pin, led_off);
 	digitalWrite(reset_pin, HIGH);
 	pinMode(reset_pin, OUTPUT);
   Serial.begin(BAUD_RATE);
   Serial.println("Starting the Receiver!");
+  second(start_time);
   Serial.print("Starting time: ");
   Serial.println(start_time);
   
@@ -94,7 +96,7 @@ void loop()
 	}
 if(enable == 1)
 {
-    delay(2000);
+    delay(500);
   uint16_t length = tx_packet.prepare2send();
   uint16_t i;
   
