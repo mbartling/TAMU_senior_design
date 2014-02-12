@@ -2,6 +2,7 @@
 #include <uVector.h>
 #include <XbeeS6.h>
 #include <string.h>
+#include <Time.h>
 
 //#include <XBeeS6.h>
 
@@ -26,6 +27,9 @@ const int reset_pin = 4;
 const int led_pin = 11;  // 11=Teensy 2.0, 6=Teensy 1.0, 16=Benito
 const int led_on = HIGH;
 const int led_off = LOW;
+
+time_t start_time;
+time_t current_time;
 void setup()
 {
   pinMode(led_pin, OUTPUT);

@@ -26,8 +26,14 @@ const int reset_pin = 4;
 const int led_pin = 11;  // 11=Teensy 2.0, 6=Teensy 1.0, 16=Benito
 const int led_on = HIGH;
 const int led_off = LOW;
+
+time_t start_time;
+time_t current_time;
+
 void setup()
 {
+  start_time = now();
+  
   pinMode(led_pin, OUTPUT);
 	digitalWrite(led_pin, led_off);
 	digitalWrite(reset_pin, HIGH);
@@ -98,8 +104,11 @@ if(enable == 1)
   }
   Serial.println(' ');
   j++;
-  tx_packet.clear_payload();
+  tx_packet.clear_payload()
+  ;
   tx_packet.push_back( (uint8_t) j);
+  tx_packet.push_back( (uint8_t) j+1
+  );
   Uart.flush();
   Serial.println("response");
   while(Uart.available())
