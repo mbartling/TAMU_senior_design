@@ -1,8 +1,13 @@
 import serial
+import sys
 
 xbee = serial.Serial()
 xbee.baudrate = 115200
-xbee.port = '/dev/ttyACM0'
+
+if len(sys.argv) > 1:
+	xbee.port = sys.argv[1]
+else:
+	xbee.port = '/dev/ttyACM0'
 
 if xbee.isOpen():
 	xbee.clos()
