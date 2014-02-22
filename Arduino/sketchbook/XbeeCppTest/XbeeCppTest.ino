@@ -2,6 +2,7 @@
 #include <uVector.h>
 #include <XbeeS6.h>
 #include <string.h>
+#include <Time.h>
 
 //#include <XBeeS6.h>
 
@@ -26,14 +27,22 @@ const int reset_pin = 4;
 const int led_pin = 11;  // 11=Teensy 2.0, 6=Teensy 1.0, 16=Benito
 const int led_on = HIGH;
 const int led_off = LOW;
+
+volatile time_t start_time;
+time_t current_time;
 void setup()
 {
+  //start_time = now();
+  
   pinMode(led_pin, OUTPUT);
 	digitalWrite(led_pin, led_off);
 	digitalWrite(reset_pin, HIGH);
 	pinMode(reset_pin, OUTPUT);
   Serial.begin(BAUD_RATE);
   Serial.println("Starting the Receiver!");
+  second(start_time);
+  Serial.print("Starting time: ");
+  Serial.println(start_time);
   
   tx_packet.set_Address(0x00000000C0A80165);  
   //tx_packet.set_Address(0x00000000FFFFFFFF);
@@ -87,9 +96,10 @@ void loop()
 	}
 if(enable == 1)
 {
-    delay(2000);
+    delay(500);
   uint16_t length = tx_packet.prepare2send();
   uint16_t i;
+  
   for(i = 0; i < length; i++)
   {
     //Uart.print(tx_buffer1[i], BYTE);
@@ -136,6 +146,9 @@ if(enable == 3) //For command mode use write for repsponse use print
  if (Uart.available()) {
 		c = Uart.read();
 //		Serial.write(c);
+                 current_time = now();
+                //Serial.print("current time: ");
+                //Serial.println(current_time);
                 if(c == 0x7E) Serial.println();
                 Serial.print(c, HEX);
                 Serial.print(" ");
