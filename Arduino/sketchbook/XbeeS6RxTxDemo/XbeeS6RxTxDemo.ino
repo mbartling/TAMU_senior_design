@@ -16,20 +16,19 @@ uint16_t dummy = 0x1419;
 uint8_t dummyRx[] = {0x7E, 0x00, 0x10, 0x80, 0x00, 0x00, 0x00, 0x00, 0xC0, 0xA8, 0x00, 0x67, 0x2E, 0x00, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x8E, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 Tx64Packet tx_packet;
-RxPacket rx_packet;
+Tx64Packet mav_packet;
 
-uVector myvector;
+//uVector myvector;
 static uint8_t * tx_buffer1;
 
 HardwareSerial Uart = HardwareSerial();
+HardwareSerial Mavlink = HardwareSerial2(); //Set appropriately
 unsigned long baud = 115200;
 const int reset_pin = 4;
 const int led_pin = 11;  // 11=Teensy 2.0, 6=Teensy 1.0, 16=Benito
 const int led_on = HIGH;
 const int led_off = LOW;
 
-volatile time_t start_time;
-time_t current_time;
 void setup()
 {
   //start_time = now();
@@ -38,96 +37,101 @@ void setup()
 	digitalWrite(led_pin, led_off);
 	digitalWrite(reset_pin, HIGH);
 	pinMode(reset_pin, OUTPUT);
-  Serial.begin(BAUD_RATE);
-  Serial.println("Starting the Receiver!");
-  second(start_time);
-  Serial.print("Starting time: ");
-  Serial.println(start_time);
+  Mavlink.begin(BAUD_RATE);
   
   tx_packet.set_Address(0x00000000C0A80165);  
-  //tx_packet.set_Address(0x00000000FFFFFFFF);
-  tx_packet.push_back(0x15);
-  tx_packet.push_back(0x16);
-  myvector.push_back(0x15);
-  myvector.push_back(0x16);
-  Serial.println(myvector[0], HEX);
-  Serial.println(myvector[1], HEX);
-  printf("printf test\n");
+  mav_packet.set_Address(SERVER_ADDRESS);
   
-  memcpy(my_buffer, &dummy, sizeof(dummy));
-  Serial.println(my_buffer[0], HEX);
-  Serial.println(my_buffer[1], HEX);
+  
+  //tx_packet.set_Address(0x00000000FFFFFFFF);
+  //tx_packet.push_back(0x15);
+  //tx_packet.push_back(0x16);
+  //myvector.push_back(0x15);
+  //myvector.push_back(0x16);
+  //Serial.println(myvector[0], HEX);
+  //Serial.println(myvector[1], HEX);
+  
+  //memcpy(my_buffer, &dummy, sizeof(dummy));
+  //Serial.println(my_buffer[0], HEX);
+  //Serial.println(my_buffer[1], HEX);
   
   tx_buffer1 = get_buffer();
   
   Uart.begin(BAUD_RATE);
-  
+ 
+ /* 
   Serial.println("=======================");
   Serial.println("?: for Receive mode HEX");
   Serial.println("#: for Receive mode BYTE (for Config)");
   Serial.println("$: for TX Mode");
   Serial.println("=======================");
+  */
+ 
   Uart.flush();
+  Mavlink.flush();
 }
 int j = 0;
 int k = 0;
 volatile int enable;
 long led_on_time=0;
+
+
 void loop()
 {
   //static int enable;
   unsigned char c, dtr;
-	static unsigned char prev_dtr = 0;
+  static unsigned char prev_dtr = 0;
 
-  //while(j <  20)
-  //{
-  if (Serial.available()) {
-    //Uart.flush();
-	c = Serial.read();
-    if(c == '?') {enable = 3; return;}
-
-    if(c == '$' ) {enable  =1; return;}
-    if(c == '#' ) {enable = 2; return; }
-    if(c == '^') {Uart.flush(); return; }
-	Uart.write(c);
+  if (Mavlink.available()) {
+  	
+  	delay(10); make sure all the data is received
+  	//Read the data and directly push into the vector
+    while(Mavlink.available())
+    {
+    	mav_packet.push_back(Mavlink.read());
+    }
+   
+    uint16_t length = mav_packet.prepare2send();
+    
+    //Uart.write(tx_buffer, length);
+	for(i = 0; i < length; i++)
+  {
+    Uart.write(tx_buffer1[i]);
+  }
+  
 	digitalWrite(led_pin, led_on);
 	led_on_time = millis();
 	return;
-	}
-if(enable == 1)
+ }
+if(Uart.available())
 {
-    delay(500);
+ //Need to seek until read 0x7E
+  delay(10);
+  tx_packet.clear_payload();
+  while((c = Uart.read() ) != '\n')
+  {
+  	tx_packet.push_back(c);
+  }
   uint16_t length = tx_packet.prepare2send();
   uint16_t i;
   
+  //Uart.write(tx_buffer,length);
   for(i = 0; i < length; i++)
   {
-    //Uart.print(tx_buffer1[i], BYTE);
-//    delayMicroseconds(10);
     Uart.write(tx_buffer1[i]);
-
   }
-  for(i = 0; i < length; i++)
-  {
-    
 
-    Serial.print(tx_buffer1[i], HEX); 
-    Serial.print(" ");
-  }
-  Serial.println(' ');
-  j++;
   tx_packet.clear_payload();
   tx_packet.push_back( (uint8_t) j);
   Uart.flush();
   Serial.println("response");
-  while(Uart.available())
-	{
+  //while(Uart.available())
+  //{
 
-		Serial.print(Uart.read(),HEX);
-		Serial.print(" ");
-	}
-  Serial.println("EOR");
-//  tx_packet.push_back( (uint8_t) j+1);
+	//	Serial.print(Uart.read(),HEX);
+	//	Serial.print(" ");
+	//}
+
 }
 //else
 if(enable == 2) //For command mode use write for repsponse use print

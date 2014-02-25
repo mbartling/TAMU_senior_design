@@ -290,6 +290,9 @@ uint8_t Tx64Packet::getTxOpts() const {
 
 uint16_t Tx64Packet::prepare2send() {
 
+	//To make it easier to parse
+	_payload.push_back('\n');
+	_length += 1;
 
 	calc_chkSum();
 	return packet_buf();
