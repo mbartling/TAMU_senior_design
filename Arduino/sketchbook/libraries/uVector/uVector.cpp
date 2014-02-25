@@ -55,7 +55,7 @@ void uVector::resize(int newsize) {
 }
 
 void uVector::push_back(const uint8_t data) {
-	if(space == 0) reserve(8);
+	if(space == 0) reserve(16); //Xbee packets take at minimum 16 bytes
 	else if (sz == space) reserve(2*space);
 	elem[sz] = data;
 	++sz;

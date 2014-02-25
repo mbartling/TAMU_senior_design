@@ -35,9 +35,9 @@ uint8_t * get_buffer();
 class Tx64Packet
 {
 private:
-	uint8_t _sf;
+	const uint8_t _sf;
 	uint16_t _length; //!< Number of bytes between length and Checksum
-	uint8_t _API_frame_id;
+	const uint8_t _API_frame_id;
 	uint8_t _seqno;
 	Address64_t _dst_address;
 	uint8_t _tx_opts;
@@ -57,6 +57,7 @@ public:
 	Tx64Packet(const Tx64Packet& );
 	int calc_chkSum();
 	int set_Address(uint64_t new_address);
+	int set_Address(uint8_t * new_address); //!< Form 192.168.1.100 etc
 	uint64_t get_Address();
 	//		unsigned long int get_Address();
 

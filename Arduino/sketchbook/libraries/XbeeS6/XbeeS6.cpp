@@ -26,6 +26,8 @@ enum {
 //tx_buffer[TX_BUFFER_SIZE];
 uint8_t tx_buffer[TX_BUFFER_SIZE];
 
+//Address64_t address_table[4]; //Lets hold 4 addresses to save time and energy
+
 uint8_t * get_buffer()
 {
 	return &tx_buffer[0];
@@ -80,6 +82,22 @@ int Tx64Packet::set_Address(uint64_t new_address)
 	 */
 }
 
+int Tx64Packet::set_Address(uint8_t *new_address)
+{
+	int a4, a5,a6,a7;
+	const char * addr_str = &new_address[0];
+	sscanf(addr_str, "%d.%d.%d.%d", &a4, &a5, &a6, &a7);
+
+	_dst_address.b0 = 0;
+	_dst_address.b1 = 0;
+	_dst_address.b2 = 0;
+	_dst_address.b3 = 0;
+	_dst_address.b4 = a4;
+	_dst_address.b5 = a5;
+	_dst_address.b6 = a6;
+	_dst_address.b7 = a7;
+
+}
 /**
  * Manually Calculate the checksum
  */
@@ -168,6 +186,8 @@ Tx64Packet::Tx64Packet(uint8_t seqno, Address64_t* dst_address) {
  * or we could write this to a global buffer or something.
  *
  * Another Option is to replace is stream with the arduino stream library
+ *
+ * This memcpy to dedicated txbuffer lets us quickly push more data than we can send in a single packet TODO implement this feature
  */
 
 uint16_t Tx64Packet::packet_buf() const
@@ -182,11 +202,14 @@ uint16_t Tx64Packet::packet_buf() const
 
 
 	memcpy(&tx_buffer[byte_cnt], &_sf			 , sizeof(_sf			    ) ) ; byte_cnt += sizeof(_sf			  );  //buffer += sizeof(packet->sf			);
-	memcpy(&tx_buffer[byte_cnt], &temp			 , sizeof(temp		    ) ) ; byte_cnt += sizeof(_length		  );  //buffer += sizeof(packet->length		);
-	memcpy(&tx_buffer[byte_cnt], &_API_frame_id  , sizeof(_API_frame_id   ) ) ; byte_cnt += sizeof(_API_frame_id );  //buffer += sizeof(packet->API_frame_id);  
+	memcpy(&tx_buffer[byte_cnt], &temp			 , sizeof(temp		    	) ) ; byte_cnt += sizeof(_length		  );  //buffer += sizeof(packet->length		);
+	memcpy(&tx_buffer[byte_cnt], &_API_frame_id  , sizeof(_API_frame_id   	) ) ; byte_cnt += sizeof(_API_frame_id );  //buffer += sizeof(packet->API_frame_id);
 	memcpy(&tx_buffer[byte_cnt], &_seqno         , sizeof(_seqno		    ) ) ; byte_cnt += sizeof(_seqno		  );  //buffer += sizeof(packet->seqno		); 
 
-	/* Writbuffer, e out the Address */                                                                                 //
+	/* Writbuffer, e out the Address */             //
+	//Todo memcpy the struct instead and iterate over it
+	memcpy(&tx_buffer[byte_cnt], &_dst_address, sizeof(_dst_address)); byte_cnt += sizeof(_dst_address);
+	/*
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b0, sizeof(_dst_address.b0))   ; byte_cnt += sizeof(_dst_address.b0); //buffer += sizeof(packet->dst_address.b0);
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b1, sizeof(_dst_address.b1))   ; byte_cnt += sizeof(_dst_address.b1); //buffer += sizeof(packet->dst_address.b1);
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b2, sizeof(_dst_address.b2))   ; byte_cnt += sizeof(_dst_address.b2); //buffer += sizeof(packet->dst_address.b2);
@@ -195,7 +218,7 @@ uint16_t Tx64Packet::packet_buf() const
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b5, sizeof(_dst_address.b5))   ; byte_cnt += sizeof(_dst_address.b5); //buffer += sizeof(packet->dst_address.b5);
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b6, sizeof(_dst_address.b6))   ; byte_cnt += sizeof(_dst_address.b6); //buffer += sizeof(packet->dst_address.b6);
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b7, sizeof(_dst_address.b7))   ; byte_cnt += sizeof(_dst_address.b7); //buffer += sizeof(packet->dst_address.b7);
-
+*/
 	memcpy(&tx_buffer[byte_cnt], &_tx_opts, sizeof(_tx_opts)); byte_cnt += sizeof(_tx_opts);
 	for(int i = 0; i < _payload.size(); i++)
 	{
@@ -205,10 +228,14 @@ uint16_t Tx64Packet::packet_buf() const
 		byte_cnt++;
 	}
 	//os<<packet.checksum;
+
+	//TODO this currently only allows us to have one TX object at a time
 	memcpy(&tx_buffer[byte_cnt], &_checksum, sizeof(_checksum));
 	byte_cnt += sizeof(_checksum);
 	PRINTF("%d", byte_cnt);
 	return byte_cnt;
+
+
 }
 
 /**
@@ -394,7 +421,7 @@ int RxPacket::Rx64Parse()
 	/* Write the RSSI information */
 	_msgQ.push_back(' ');
 	_msgQ.push_back('R');
-//	i++; //want to increment i
+	//	i++; //want to increment i
 	_msgQ.push_back(_API_frame[i]);
 
 	//skip the options byte
