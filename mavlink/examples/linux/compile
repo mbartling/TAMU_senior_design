@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "testing"
+gcc -I ../../include/common -o mavlink_udp mavlink_udp.c -w
