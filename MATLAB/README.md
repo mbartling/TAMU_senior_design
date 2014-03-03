@@ -9,8 +9,8 @@ Accomplished using Moore-Penrose Pseudoinverses
 ```python
 mean_lat = average(samples.lat)
 mean_lon = average(samples.lon)
-xs = (lat - mean_lat)
-ys = (lon - mean_lon)
+xs = (samples.lat - mean_lat)
+ys = (samples.lon - mean_lon)
     
 A = [xs.^2 | ys.^2 | xs | ys | 1]
 Ac = c_transpose(A)
