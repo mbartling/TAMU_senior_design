@@ -139,7 +139,8 @@ a.button {
   color: #fff;
   padding-left: 68px;
   padding-top: 22px;
-  font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif; 
+  /*font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;*/
+  font-family: 'Archivo Black', sans-serif; 
 }
 a.button small {
   display: block;
