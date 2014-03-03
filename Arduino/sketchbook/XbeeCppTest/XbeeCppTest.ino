@@ -77,7 +77,7 @@ void loop()
 {
   //static int enable;
   unsigned char c, dtr;
-	static unsigned char prev_dtr = 0;
+  static unsigned char prev_dtr = 0;
 
   //while(j <  20)
   //{
@@ -89,16 +89,16 @@ void loop()
     if(c == '$' ) {enable  =1; return;}
     if(c == '#' ) {enable = 2; return; }
     if(c == '^') {Uart.flush(); return; }
-	Uart.write(c);
-	digitalWrite(led_pin, led_on);
-	led_on_time = millis();
-	return;
-	}
-if(enable == 1)
-{
+    Uart.write(c);
+    digitalWrite(led_pin, led_on);
+    led_on_time = millis();
+    return;
+  }
+  if(enable == 1)
+  {
     delay(500);
-  uint16_t length = tx_packet.prepare2send();
-  uint16_t i;
+    uint16_t length = tx_packet.prepare2send();
+    uint16_t i;
   
   for(i = 0; i < length; i++)
   {
