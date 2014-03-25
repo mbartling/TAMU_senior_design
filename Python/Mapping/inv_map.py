@@ -134,5 +134,5 @@ if DEBUGMODE == 1:
 	#ax = fig.gca(projection='3d')
 	#CS = ax.plot_wireframe(gamemap, rstride=1, cstride=1)
 	plt.figure()
-	im = plt.imshow(gamemap, interpolation='bilinear', cmap=cm.hot)
+	im = plt.imshow(gamemap, interpolation='spline36',origin='upper', cmap=cm.jet)
 	plt.show()
