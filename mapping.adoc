@@ -1,4 +1,0 @@
-= Advanced Static Mapping Algorithm
-A Moore-Penrose Pseudo-Inverse Method
-
-This algorithm uses the Moore Penrose Pseudo-Inverse to estimate quadric function parameters. Using this information, we can estimate an X offset and Y offset which will serve as a mean for the second pass of the algorithm. In the second pass, we rerun the pseudoinverse method assuming a Gaussian distribution.
