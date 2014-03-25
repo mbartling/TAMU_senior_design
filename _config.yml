@@ -1,0 +1,9 @@
+name: TAMU Senior Design Team 05, Autonomous Mission Planning of RF Landscapes
+safe: true
+lsi: false
+pygments: true
+markdown: redcarpet
+redcarpet:
+    extensions: ["no_intra_emphasis", "fenced_code_blocks", "autolink", "tables", "with_toc_data"]
+path: http://mbartling.github.io/TAMU_senior_design
+baseurl: /TAMU_senior_design
