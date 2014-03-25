@@ -1,0 +1,34 @@
+---
+layout: post
+title: About Hadoop Playground
+---
+
+[**Home**][1]
+
+
+## EE's Introduction
+
+Hadoop Playground is meant to bootstrap new Hadoop users on a super computing cluster. For my research, I am required to run C-based map programs and reduce programs using the [Hadoop Streaming][2] interface. I am running these examples on the [Texas A&M EOS Super Computing Cluster][3], but the concepts presented should be applicable to most Hadoop implementations. The tutorials are broken up into 3 case study MR examples (written in C) as well as sections on debugging tips and important caveats to running Hadoop programs on the TAMU EOS cluster. 
+
+### Example 1: Word Count
+
+Word count is the glorified _Hello World!_ of Map Reduction.
+
+### Example 2: Min/Max
+MinMax is closely related to word count. The goal is to find the smallest and largest number in a **massive** set of input data.
+
+### Example 3: Friends of Friends
+This is a more real world example of MapReduce in action. Imagine we are a desiging an algorithm for a new social networking service which reports the mutual friends of two people. This is trivial for small sets of people, but when there are close to 1.19 billion users (as is the case with Facebook) traditional methods just don't suffice.
+
+
+## About Me
+
+Hi, my name is Michael Bartling! I'm currently an undergraduate senior studying Electrical Engineering at Texas A&M University, College Station. 
+
+I'm constantly trying to improve my EE's Introduction to Hadoop, so if you have any comments or recommendations then feel free to email me at:
+
+michael.bartling15+HadoopPlayground@gmail.com
+
+[1]: ../index.md
+[2]: http://hadoop.apache.org/docs/r1.2.1/streaming.html
+[3]: http://sc.tamu.edu/help/eos/sysinfo.php
