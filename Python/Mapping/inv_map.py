@@ -11,14 +11,14 @@ if DEBUGMODE == 1:
     import matplotlib.cm as cm
 
 # Parameters Make sure these values correspond with the input locations otherwise we will get weird results
-xSize = 800
-ySize = 800
+xres = 300
+yres = 500
 weight = 3
 # Lists to maintain
 xCoords = []
 yCoords = []
 rssi = []
-fptr = open('testpoints.out', 'r')
+#fptr = open('testpoints.out', 'r')
 
 def pass1(i, j, xmean, ymean, coefmat):
     xs = i-xmean
@@ -41,25 +41,34 @@ def pass2(i, j, xmean, ymean, coefmat):
 
 #for line in sys.stdin:
 i = 0
-for line in fptr:
-    if i == 0:
-        line = line.strip()
-        (xSize,ySize) = line.split(',')
-        xSize = int(xSize)
-        ySize = int(ySize)
-        i += 1
-    else:
-        line = line.strip()
-        (xCoordIn, yCoordIn, rssiIn) = line.split(',')
-        # print xCoordIn, yCoordIn, rssiIn
-        xCoords.append(xCoordIn)
-        yCoords.append(yCoordIn)
-        rssi.append(rssiIn)
+#for line in fptr:
+#    if i == 0:
+#        line = line.strip()
+#        (xres,yres) = line.split(',')
+#        xres = int(xres)
+#        yres = int(yres)
+#        i += 1
+#    else:
+for line in sys.stdin:
+   line = line.strip()
+   (xCoordIn, yCoordIn, rssiIn) = line.split(',')
+   # print xCoordIn, yCoordIn, rssiIn
+   xCoords.append(xCoordIn)
+   yCoords.append(yCoordIn)
+   rssi.append(rssiIn)
 
-fptr.close()
+#fptr.close()
 xloc = numpy.asarray(xCoords, dtype='int32')
 yloc = numpy.asarray(yCoords, dtype='int32')
 rssi = numpy.asarray(rssi, dtype = 'int32')
+
+latmin = numpy.min(xloc)
+latmax = numpy.max(xloc)
+lonmin = numpy.min(yloc)
+lonmax = numpy.max(yloc)
+
+xlin = numpy.linspace(latmin,latmax,xres)
+ylin = numpy.linspace(lonmin,lonmax,yres)
 # print xCoords
 xmean = numpy.mean(xloc)
 ymean = numpy.mean(yloc)
@@ -87,12 +96,12 @@ amat[: , 5] = 1;
 amatPI = numpy.dot(amat.T,amat)
 coefmat = numpy.dot(numpy.dot(inv(amatPI),amat.T),rssi.T)
 
-print coefmat
-gamemap = numpy.zeros((xSize, ySize))
+#print coefmat
+gamemap = numpy.zeros((xres, yres))
 
-for i in range(xSize):
-    for j in range(ySize):
-        gamemap[i,j] = pass1(i, j, xmean, ymean, coefmat)
+for i in range(xres):
+    for j in range(yres):
+        gamemap[i,j] = pass1(xlin[i], ylin[j], xmean, ymean, coefmat)
 
 gamemap = -gamemap/numpy.sum(numpy.sum(numpy.abs(gamemap)))
 
@@ -111,7 +120,7 @@ if DEBUGMODE == 1:
 
 #Save the original game map, we might be able to exploit it
 gamemapFat = gamemap
-print xe, ye
+# print xe, ye
 
 ## Begin Pass 2
 
@@ -133,12 +142,12 @@ amat[: , 2] = 2*xs*ys;
 amatPI = numpy.dot(amat.T,amat)
 coefmat = numpy.dot(numpy.dot(inv(amatPI),amat.T),rssi.T)
 
-print coefmat
-gamemap = numpy.zeros((xSize, ySize))
+# print coefmat
+gamemap = numpy.zeros((xres, yres))
 
-for i in range(xSize):
-    for j in range(ySize):
-        gamemap[i,j] = pass2(i, j, xe, ye, coefmat)
+for i in range(xres):
+    for j in range(yres):
+        gamemap[i,j] = pass2(xlin[i], ylin[j], xe, ye, coefmat)
 
 
 # Display Gamemap
@@ -146,11 +155,11 @@ if DEBUGMODE == 1:
     plt.figure()
     CS = plt.contourf(gamemap, origin='image')
     plt.colorbar()
-    #X,Y = numpy.mgrid[range(xSize), range(ySize)]
+    #X,Y = numpy.mgrid[range(xres), range(yres)]
     #ax = fig.gca(projection='3d')
     #CS = ax.plot_wireframe(gamemap, rstride=1, cstride=1)
     plt.figure()
-    im = plt.imshow(gamemap, interpolation='spline36',origin='image', cmap=cm.jet)
+    im = plt.imshow(gamemap, interpolation='spline36',origin='bottom', cmap=cm.jet)
     plt.colorbar()
         
     #plt.figure()
@@ -160,5 +169,12 @@ if DEBUGMODE == 1:
     #plt.colorbar()
 
     plt.figure()
-    im = plt.imshow((weight*gamemap+gamemapFat)/(weight+1),interpolation='bicubic',origin='image', cmap=cm.jet)
+    gamemap = (weight*gamemap+gamemapFat)/(weight+1)
+    im = plt.imshow(gamemap,interpolation='bicubic',origin='image', cmap=cm.jet)
     plt.show()
+
+print xe, ye
+numpy.savetxt("forJennyIns.out", gamemap, delimiter=" ")
+#for i in range(xres):
+#    for j in range(yres):
+#        print gamemap[i,j]
