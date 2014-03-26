@@ -10,9 +10,9 @@ if DEBUGMODE == 1:
     import matplotlib.pyplot as plt
     import matplotlib.cm as cm
 
-# Parameters
-xSize = 300
-ySize = 500
+# Parameters Make sure these values correspond with the input locations otherwise we will get weird results
+xSize = 800
+ySize = 800
 weight = 3
 # Lists to maintain
 xCoords = []
@@ -40,13 +40,21 @@ def pass2(i, j, xmean, ymean, coefmat):
     return temp
 
 #for line in sys.stdin:
+i = 0
 for line in fptr:
-    line = line.strip()
-    (xCoordIn, yCoordIn, rssiIn) = line.split(',')
-    # print xCoordIn, yCoordIn, rssiIn
-    xCoords.append(xCoordIn)
-    yCoords.append(yCoordIn)
-    rssi.append(rssiIn)
+    if i == 0:
+        line = line.strip()
+        (xSize,ySize) = line.split(',')
+        xSize = int(xSize)
+        ySize = int(ySize)
+        i += 1
+    else:
+        line = line.strip()
+        (xCoordIn, yCoordIn, rssiIn) = line.split(',')
+        # print xCoordIn, yCoordIn, rssiIn
+        xCoords.append(xCoordIn)
+        yCoords.append(yCoordIn)
+        rssi.append(rssiIn)
 
 fptr.close()
 xloc = numpy.asarray(xCoords, dtype='int32')
@@ -94,9 +102,9 @@ if DEBUGMODE == 1:
     CS = plt.contourf(gamemap, origin='image')
     plt.colorbar()
 
-    plt.figure()
-    im = plt.imshow(gamemap, interpolation='bicubic',origin='image', cmap=cm.jet)
-    plt.colorbar()
+    #plt.figure()
+    #im = plt.imshow(gamemap, interpolation='bicubic',origin='image', cmap=cm.jet)
+    #plt.colorbar()
     #plt.show()
 
 (xe,ye) = numpy.nonzero(gamemap == numpy.max(numpy.max(gamemap)))
@@ -145,11 +153,11 @@ if DEBUGMODE == 1:
     im = plt.imshow(gamemap, interpolation='spline36',origin='image', cmap=cm.jet)
     plt.colorbar()
         
-    plt.figure()
+    #plt.figure()
     gamemapFat += numpy.max(numpy.max(abs(gamemapFat)))
     gamemapFat *= 1.0/numpy.max(numpy.max(numpy.abs(gamemapFat)))
-    im = plt.imshow(gamemapFat, interpolation='spline36',origin='image', cmap=cm.jet)
-    plt.colorbar()
+    #im = plt.imshow(gamemapFat, interpolation='spline36',origin='image', cmap=cm.jet)
+    #plt.colorbar()
 
     plt.figure()
     im = plt.imshow((weight*gamemap+gamemapFat)/(weight+1),interpolation='bicubic',origin='image', cmap=cm.jet)
