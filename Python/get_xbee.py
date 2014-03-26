@@ -73,22 +73,31 @@ try:
 				latArray = packet[16:20]
 				latHex = ''.join(latArray)
 				print latHex
-				lat = int(latHex, 16)
+				if latHex == '0000':
+					lat = 0
+				else:
+					lat = int(latHex, 16)
 	
 				lonArray = packet [20:24]
 				lonHex = ''.join(lonArray)
 				print lonHex
-				lon = int(lonHex, 16)
-				lon = lon ^ 0xFFFFFFFF
-				lon += 1
-				lon *= -1
+				if lonHex == '0000':
+					lon = 0;
+				else:
+					lon = int(lonHex, 16)
+					lon = lon ^ 0xFFFFFFFF
+					lon += 1
+					lon *= -1
+
+				print lat, lon
 
 	
-				cmd = "insert into raw_data values(\"%s\",\"%s\", %d, %d, %d)" %(timestamp, addressString, rssi, lat, lon)
-	    			print cmd
-	    			cur.execute(cmd)
-	    			db.commit()
-	    			print "new row added to mysql"
+				if lon > -970000000 and lon < -960000000 and lat > 306000000 and lat < 307000000:
+					cmd = "insert into raw_data values(\"%s\",\"%s\", %d, %d, %d)" %(timestamp, addressString, rssi, lat, lon)
+	    				print cmd
+	    				cur.execute(cmd)
+	    				db.commit()
+	    				print "new row added to mysql"
 	
 	print "Closing Xbee Port"
 
@@ -100,7 +109,7 @@ finally:
 		filename = '/tmp/raw' + address_split[3] + '.txt'
 		os.popen('rm ' + filename)
 		print filename
-		cmd = "select row, col, rssi from raw_data where address = \'%s\' into outfile \'%s\'" %(address, filename)
+		cmd = "select row, col, rssi from raw_data where address = \'%s\' into outfile \'%s\' fields terminated by ','" %(address, filename)
 		print cmd
 		cur.execute(cmd)
 		cmd = 'cp ' + filename + ' /home/walter/Code/rawData/raw' + address_split[3] + '.txt'

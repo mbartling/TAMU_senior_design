@@ -103,7 +103,7 @@ for i in range(xres):
     for j in range(yres):
         gamemap[i,j] = pass1(xlin[i], ylin[j], xmean, ymean, coefmat)
 
-gamemap = -gamemap/numpy.sum(numpy.sum(numpy.abs(gamemap)))
+#gamemap = -gamemap/numpy.sum(numpy.sum(numpy.abs(gamemap)))
 
 # Display Gamemap
 if DEBUGMODE == 1:
@@ -152,9 +152,9 @@ for i in range(xres):
 
 # Display Gamemap
 if DEBUGMODE == 1:
-    plt.figure()
-    CS = plt.contourf(gamemap, origin='image')
-    plt.colorbar()
+  #  plt.figure()
+  #  CS = plt.contourf(gamemap, origin='image')
+  #  plt.colorbar()
     #X,Y = numpy.mgrid[range(xres), range(yres)]
     #ax = fig.gca(projection='3d')
     #CS = ax.plot_wireframe(gamemap, rstride=1, cstride=1)
