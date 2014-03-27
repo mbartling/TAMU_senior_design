@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "XbeeS6.h"
 //#include <iterator>
-#define DEBUG_MODE 1
+#define DEBUG_MODE 0
 #if DEBUG_MODE
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -232,12 +232,46 @@ uint16_t Tx64Packet::packet_buf() const
 		default:
 			tx_buffer[byte_cnt] = temp_byte;
 			byte_cnt++;
+			break;
 		}
 
 	}
 	//os<<packet.checksum;
-	memcpy(&tx_buffer[byte_cnt], &_checksum, sizeof(_checksum));
-	byte_cnt += sizeof(_checksum);
+	temp_byte = _checksum;
+	switch(temp_byte)
+		{
+		case 0x7E:
+			tx_buffer[byte_cnt] = 0x7D;
+			byte_cnt++;
+			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
+			byte_cnt++;
+			break;
+		case 0x7D:
+			tx_buffer[byte_cnt] = 0x7D;
+			byte_cnt++;
+			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
+			byte_cnt++;
+			break;
+		case 0x11:
+			tx_buffer[byte_cnt] = 0x7D;
+			byte_cnt++;
+			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
+			byte_cnt++;
+			break;
+		case 0x13:
+			tx_buffer[byte_cnt] = 0x7D;
+			byte_cnt++;
+			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
+			byte_cnt++;
+			break;
+		default:
+			tx_buffer[byte_cnt] = temp_byte;
+			byte_cnt++;
+			break;
+		}
+
+	//memcpy(&tx_buffer[byte_cnt], &_checksum, sizeof(_checksum));
+	//byte_cnt += sizeof(_checksum);
 	PRINTF("%d", byte_cnt);
 	return byte_cnt;
 }
