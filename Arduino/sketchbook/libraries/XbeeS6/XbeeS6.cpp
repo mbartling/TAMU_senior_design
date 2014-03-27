@@ -174,7 +174,7 @@ uint16_t Tx64Packet::packet_buf() const
 {
 	//uint64_t temp = packet.get_Address();
 	uint16_t byte_cnt;
-
+	uint8_t temp_byte;
 	/* Need to byteswap the packet length first */
 	uint16_t temp;
 	temp = (_length >> 8) | (_length << 8);
@@ -182,8 +182,8 @@ uint16_t Tx64Packet::packet_buf() const
 
 
 	memcpy(&tx_buffer[byte_cnt], &_sf			 , sizeof(_sf			    ) ) ; byte_cnt += sizeof(_sf			  );  //buffer += sizeof(packet->sf			);
-	memcpy(&tx_buffer[byte_cnt], &temp			 , sizeof(temp		    ) ) ; byte_cnt += sizeof(_length		  );  //buffer += sizeof(packet->length		);
-	memcpy(&tx_buffer[byte_cnt], &_API_frame_id  , sizeof(_API_frame_id   ) ) ; byte_cnt += sizeof(_API_frame_id );  //buffer += sizeof(packet->API_frame_id);  
+	memcpy(&tx_buffer[byte_cnt], &temp			 , sizeof(temp		    	) ) ; byte_cnt += sizeof(_length		  );  //buffer += sizeof(packet->length		);
+	memcpy(&tx_buffer[byte_cnt], &_API_frame_id  , sizeof(_API_frame_id   	) ) ; byte_cnt += sizeof(_API_frame_id );  //buffer += sizeof(packet->API_frame_id);
 	memcpy(&tx_buffer[byte_cnt], &_seqno         , sizeof(_seqno		    ) ) ; byte_cnt += sizeof(_seqno		  );  //buffer += sizeof(packet->seqno		); 
 
 	/* Writbuffer, e out the Address */                                                                                 //
@@ -201,8 +201,39 @@ uint16_t Tx64Packet::packet_buf() const
 	{
 		//		memcpy(&tx_buffer[byte_cnt], &(*it), sizeof(*it));
 		//		byte_cnt += sizeof(*it);
-		tx_buffer[byte_cnt] = _payload[i];
-		byte_cnt++;
+		temp_byte = _payload[i];
+		// Escape Characters as specified in Xbee S6B documentation (for API mode 2)
+		switch(temp_byte)
+		{
+		case 0x7E:
+			tx_buffer[byte_cnt] = 0x7D;
+			byte_cnt++;
+			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
+			byte_cnt++;
+			break;
+		case 0x7D:
+			tx_buffer[byte_cnt] = 0x7D;
+			byte_cnt++;
+			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
+			byte_cnt++;
+			break;
+		case 0x11:
+			tx_buffer[byte_cnt] = 0x7D;
+			byte_cnt++;
+			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
+			byte_cnt++;
+			break;
+		case 0x13:
+			tx_buffer[byte_cnt] = 0x7D;
+			byte_cnt++;
+			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
+			byte_cnt++;
+			break;
+		default:
+			tx_buffer[byte_cnt] = temp_byte;
+			byte_cnt++;
+		}
+
 	}
 	//os<<packet.checksum;
 	memcpy(&tx_buffer[byte_cnt], &_checksum, sizeof(_checksum));
@@ -394,7 +425,7 @@ int RxPacket::Rx64Parse()
 	/* Write the RSSI information */
 	_msgQ.push_back(' ');
 	_msgQ.push_back('R');
-//	i++; //want to increment i
+	//	i++; //want to increment i
 	_msgQ.push_back(_API_frame[i]);
 
 	//skip the options byte
