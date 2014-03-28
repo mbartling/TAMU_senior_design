@@ -26,6 +26,9 @@ enum {
 //tx_buffer[TX_BUFFER_SIZE];
 uint8_t tx_buffer[TX_BUFFER_SIZE];
 
+// Rx buffer
+uint8_t rx_buffer[TX_BUFFER_SIZE];
+
 uint8_t * get_buffer()
 {
 	return &tx_buffer[0];
@@ -354,6 +357,11 @@ RxPacket::RxPacket() {
 	_length = 0;
 }
 
+uint8_t * RxPacket::get_pktQ()
+{
+	return &rx_buffer[0];
+}
+
 void RxPacket::set_length(uint16_t length) {
 
 	_length = length;
@@ -386,6 +394,7 @@ int  RxPacket::process()
 	case 0x80:
 		if( Rx64Parse() > 0){
 			_length = _msgQ.size();
+			//memcpy(&rx_buffer[0], 
 			clear_API_frame();
 			return 0x80;
 		}
