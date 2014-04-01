@@ -4,6 +4,8 @@ import sys
 import os
 import MySQLdb
 from subprocess import call
+from datetime import date
+today = date.today()
 
 try:
 
@@ -27,7 +29,7 @@ try:
 		xbee.port = '/dev/ttyACM0'
 	
 	if xbee.isOpen():
-		xbee.clos()
+		xbee.close()
 	
 	xbee.open()
 	print xbee
@@ -103,16 +105,16 @@ try:
 
 finally:
 	print "output data to file"
-	os.popen('rm /home/walter/Code/rawData/*.txt')
+	os.popen('rm ./rawData/*.out')
 	for address in address_array:
 		address_split = address.split('.');
-		filename = '/tmp/raw' + address_split[3] + '.txt'
+		filename = '/tmp/raw' + address_split[3] + '.out'
 		os.popen('rm ' + filename)
 		print filename
 		cmd = "select row, col, rssi from raw_data where address = \'%s\' into outfile \'%s\' fields terminated by ','" %(address, filename)
 		print cmd
 		cur.execute(cmd)
-		cmd = 'cp ' + filename + ' /home/walter/Code/rawData/raw' + address_split[3] + '.txt'
+		cmd = 'cp ' + filename + ' ./rawData/raw' + address_split[3] + today.strftime("%y-%m-%d") + '.out'
 		print cmd
 		os.popen(cmd)
 	print "closing xbee port and database"
