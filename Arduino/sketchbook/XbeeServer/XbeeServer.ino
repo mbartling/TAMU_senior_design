@@ -25,7 +25,7 @@ const int led_off = LOW;
 volatile time_t start_time;
 time_t current_time;
 long previousMillis = 0;
-long interval = 500;
+long interval = 1000; //in ms
 
 void setup()
 {
@@ -41,7 +41,7 @@ void setup()
   Serial.print("Starting time: ");
   Serial.println(start_time);
 
-  tx_packet.set_Address(0x00000000C0A80166);  
+  tx_packet.set_Address(0x00000000C0A80164);  
 
   tx_buffer1 = get_buffer();
 
@@ -52,7 +52,12 @@ void setup()
   Serial.println("#: for Receive mode BYTE (for Config)");
   Serial.println("$: for TX Mode");
   Serial.println("=======================");
-  Uart.flush();
+  Uart.flush();					cmd = "insert into raw_data values(\"%s\",\"%s\", %d, %d, %d)" %(timestamp, addressString, rssi, lat, lon)
+	    				print cmd
+	    				cur.execute(cmd)
+	    				db.commit()
+	    				print "new row added to mysql"
+
 
 
 }
