@@ -181,6 +181,7 @@ print xe, ye
 numpy.savetxt("forJennyIns.out", gamemap, delimiter=" ")
 numpy.savetxt("forJennyIns.csv", gamemap, delimiter=",")
 
+# First entry corresponds to index 1, second entry corresponds to index 2 etc
 numpy.savetxt("xSpace.out", xlin, delimiter = " ")
 numpy.savetxt("ySpace.out", ylin, delimiter = " ")
 #for i in range(xres):
