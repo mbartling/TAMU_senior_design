@@ -180,6 +180,9 @@ if DEBUGMODE == 1:
 print xe, ye
 numpy.savetxt("forJennyIns.out", gamemap, delimiter=" ")
 numpy.savetxt("forJennyIns.csv", gamemap, delimiter=",")
+
+numpy.savetxt("xSpace.out", xlin, delimiter = " ")
+numpy.savetxt("ySpace.out", ylin, delimiter = " ")
 #for i in range(xres):
 #    for j in range(yres):
 #        print gamemap[i,j]
