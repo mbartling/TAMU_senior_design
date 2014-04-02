@@ -13,7 +13,7 @@ if DEBUGMODE == 1:
 # Parameters Make sure these values correspond with the input locations otherwise we will get weird results
 xres = 300
 yres = 500
-weight = 3
+weight = 0.5
 # Lists to maintain
 xCoords = []
 yCoords = []
@@ -104,6 +104,7 @@ for i in range(xres):
         gamemap[i,j] = pass1(xlin[i], ylin[j], xmean, ymean, coefmat)
 
 #gamemap = -gamemap/numpy.sum(numpy.sum(numpy.abs(gamemap)))
+gamemap = gamemap/numpy.max(numpy.max(numpy.abs(gamemap)))
 
 # Display Gamemap
 if DEBUGMODE == 1:
@@ -122,10 +123,10 @@ if DEBUGMODE == 1:
 gamemapFat = gamemap
 # print xe, ye
 
-## Begin Pass 2
+## Begin Pass 2_
 
-xs = xloc - xe
-ys = yloc - ye
+xs = xloc - xlin[xe]
+ys = yloc - ylin[ye]
 
 # print xs
 
@@ -145,9 +146,10 @@ coefmat = numpy.dot(numpy.dot(inv(amatPI),amat.T),rssi.T)
 # print coefmat
 gamemap = numpy.zeros((xres, yres))
 
+# There must be a faster way to do this
 for i in range(xres):
     for j in range(yres):
-        gamemap[i,j] = pass2(xlin[i], ylin[j], xe, ye, coefmat)
+        gamemap[i,j] = pass2(xlin[i], ylin[j], xlin[xe], ylin[ye], coefmat)
 
 
 # Display Gamemap
@@ -159,7 +161,7 @@ if DEBUGMODE == 1:
     #ax = fig.gca(projection='3d')
     #CS = ax.plot_wireframe(gamemap, rstride=1, cstride=1)
     plt.figure()
-    im = plt.imshow(gamemap, interpolation='spline36',origin='bottom', cmap=cm.jet)
+    im = plt.imshow(gamemap, interpolation='spline36',origin='image', cmap=cm.jet)
     plt.colorbar()
         
     #plt.figure()
@@ -170,11 +172,14 @@ if DEBUGMODE == 1:
 
     plt.figure()
     gamemap = (weight*gamemap+gamemapFat)/(weight+1)
+    gamemap = gamemap/numpy.max(numpy.max(gamemap))
     im = plt.imshow(gamemap,interpolation='bicubic',origin='image', cmap=cm.jet)
+    plt.colorbar()
     plt.show()
 
 print xe, ye
 numpy.savetxt("forJennyIns.out", gamemap, delimiter=" ")
+numpy.savetxt("forJennyIns.csv", gamemap, delimiter=",")
 #for i in range(xres):
 #    for j in range(yres):
 #        print gamemap[i,j]

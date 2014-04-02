@@ -5,7 +5,7 @@ import os
 import MySQLdb
 from subprocess import call
 from datetime import date
-FORCE_WRITE = 1
+FORCE_WRITE = 0
 today = date.today()
 try:
 
@@ -94,7 +94,7 @@ try:
 					lon *= -1
 
 				print lat, lon
-				if 1:
+				if FORCE_WRITE:
 					cmd = "insert into raw_data values(\"%s\",\"%s\", %d, %d, %d)" %(timestamp, addressString, rssi, lat, lon)
 	    				print cmd
 	    				cur.execute(cmd)
@@ -108,12 +108,14 @@ try:
 	    					cur.execute(cmd)
 	    					db.commit()
 	    					print "new row added to mysql"
-	
+	1
+
 	print "Closing Xbee Port"
 
 finally:
 	print "output data to file"
 	os.popen('rm -f /home/walter/Code/rawData/*.txt')
+	os.popen('rm -f /tmp/raw101.txt')
 	for address in address_array:
 		address_split = address.split('.');
 		filename = '/tmp/raw' + address_split[3] + '.txt'
@@ -122,7 +124,7 @@ finally:
 		cmd = "select row, col, rssi from raw_data where address = \'%s\' into outfile \'%s\' fields terminated by ','" %(address, filename)
 		print cmd
 		cur.execute(cmd)
-		cmd = 'cp ' + filename + ' /home/walter/Code/rawData/raw' + address_split[3] + today.strftime("-%y-%m-%d") + '.txt'
+		cmd = 'cp ' + filename + ' /home/walter/Code/rawData/raw' + address_split[3] + today.strftime("-%y-%m-%d") + '.out'
 		print cmd
 		os.popen(cmd)
 	print "closing xbee port and database"
