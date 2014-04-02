@@ -178,3 +178,6 @@ numpy.savetxt("forJennyIns.out", gamemap, delimiter=" ")
 #for i in range(xres):
 #    for j in range(yres):
 #        print gamemap[i,j]
+
+numpy.savetxt("xSpace.out", xlin, delimiter=" ")
+numpy.savetxt("yypace.out", ylin, delimiter=" ")
