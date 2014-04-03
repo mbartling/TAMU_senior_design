@@ -36,4 +36,12 @@ typedef struct command_Remote /*_AT*/
   uint8_t     _cmd_opts;
 } command_Remote_t;
 
+void increment_frame(Api_frame &packet);
+/* Return the expected length*/
+uint16_t req_frame(Api_frame &packet, uint8_t api_fid, uint8_t *payload, uint16_t payload_length);
+void set_dst_address(uint32_t upper, uint32_t lower);
+
+int prepare2send(uint8_t* buffer, Api_frame_t packet);
+
+
 #endif /*__XBEES6C_H__*/
