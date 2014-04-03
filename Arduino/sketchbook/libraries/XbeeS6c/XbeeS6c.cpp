@@ -64,7 +64,8 @@ uint16_t req_frame(Api_frame &packet, uint8_t api_fid, uint8_t *payload, uint16_
     {
       length = 13;
       packet->_api_fid = api_fid;
-      packet->_api_command = &private_tx64;
+      packet->_api_command = &private_remote;
+      private_remote->_cmd_opts = DISABLE_ACK;
       packet->_payload = &payload;
     }
     case ID_REMOTE_AT:
@@ -72,7 +73,7 @@ uint16_t req_frame(Api_frame &packet, uint8_t api_fid, uint8_t *payload, uint16_
       length = 11;
       if(payload_length < 2) return -1; //Should have gotten at least the 2 bytes "DL" part for ATDL
       packet->_api_fid = api_fid;
-      packet->_api_command = &private_tx64;
+      packet->_api_command = &private_remote;
       private_remote->_cmd_opts = APPLY_CHANGES;
       packet->_payload = &payload;
       
@@ -105,6 +106,26 @@ void set_dst_address(uint32_t upper, uint32_t lower)
   private_dst_address._lower = lower;
 }
 
+int prepare2send(uint8_t* buffer, Api_frame_t packet)
+{
+	uint16_t length;
+	int offset = 0;
+ 	switch(packet->_api_fid)
+  	{
+    case ID_TX64_REQ:
+    {
+      length = 13;
+     }
+    case ID_REMOTE_AT:
+    {
+      length = 11;
+    }
+    case ID_AT_COMMAND:
+    {
+      length = 2;
+    }
+   
+}
 int Tx64_request(uint8_t *payload, uint16_t payload_length);
 int Tx64_request(uint8_t *payload, uint16_t payload_length)
 {
