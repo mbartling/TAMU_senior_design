@@ -10,6 +10,7 @@
 #define APPLY_CHANGES 0x02
 
 /*Need to calculate 2 things, first is the length and second is the checksum which is from byte three to the end*/
+/*
 typedef struct Api_frame
 {
   uint8_t _api_fid;
@@ -18,12 +19,14 @@ typedef struct Api_frame
   void *  _payload;
   
 } Api_frame_t;
-
+*/
+/*
 typedef struct Address64
 {
   uint32_t _upper;
   uint32_t _lower;
 } Address64_t
+*/
 /*
 typedef struct command_Tx64
 {
@@ -31,12 +34,13 @@ typedef struct command_Tx64
   uint8_t     _tx_opts = DISABLE_ACK;
 } command_Tx64_t;
 */
-typedef struct command_Remote /*_AT*/
+/*
+typedef struct command_Remote
 {
   Address64_t _cmd_dst_addr;
   uint8_t     _cmd_opts;
 } command_Remote_t;
-
+*/
 Address64_t private_dst_address;
 command_Remote_t private_remote;
 
@@ -106,6 +110,7 @@ int Tx64_request(uint8_t *payload, uint16_t payload_length)
 {
   
 }
+/*
 void escape_chars(uint8_t temp_byte, uint16_t &byte_cnt)
 {
 	switch(temp_byte)
@@ -141,3 +146,4 @@ void escape_chars(uint8_t temp_byte, uint16_t &byte_cnt)
 		}
 }
 
+*/
