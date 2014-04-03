@@ -27,12 +27,48 @@ enum {
 uint8_t tx_buffer[TX_BUFFER_SIZE];
 
 // Rx buffer
-uint8_t rx_buffer[TX_BUFFER_SIZE];
+//uint8_t rx_buffer[64];
 
 uint8_t * get_buffer()
 {
 	return &tx_buffer[0];
 }
+
+void escape_chars(uint8_t temp_byte, uint16_t &byte_cnt)
+{
+	switch(temp_byte)
+	{
+		case 0x7E:
+			tx_buffer[byte_cnt] = 0x7D;
+			byte_cnt++;
+			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
+			byte_cnt++;
+			break;
+		case 0x7D:
+			tx_buffer[byte_cnt] = 0x7D;
+			byte_cnt++;
+			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
+			byte_cnt++;
+			break;
+		case 0x11:
+			tx_buffer[byte_cnt] = 0x7D;
+			byte_cnt++;
+			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
+			byte_cnt++;
+			break;
+		case 0x13:
+			tx_buffer[byte_cnt] = 0x7D;
+			byte_cnt++;
+			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
+			byte_cnt++;
+			break;
+		default:
+			tx_buffer[byte_cnt] = temp_byte;
+			byte_cnt++;
+			break;
+		}
+}
+
 /* This will help with debugging
  * We can use this to figure out bytes are being packed.
  */
@@ -187,9 +223,13 @@ uint16_t Tx64Packet::packet_buf() const
 	memcpy(&tx_buffer[byte_cnt], &_sf			 , sizeof(_sf			    ) ) ; byte_cnt += sizeof(_sf			  );  //buffer += sizeof(packet->sf			);
 	memcpy(&tx_buffer[byte_cnt], &temp			 , sizeof(temp		    	) ) ; byte_cnt += sizeof(_length		  );  //buffer += sizeof(packet->length		);
 	memcpy(&tx_buffer[byte_cnt], &_API_frame_id  , sizeof(_API_frame_id   	) ) ; byte_cnt += sizeof(_API_frame_id );  //buffer += sizeof(packet->API_frame_id);
-	memcpy(&tx_buffer[byte_cnt], &_seqno         , sizeof(_seqno		    ) ) ; byte_cnt += sizeof(_seqno		  );  //buffer += sizeof(packet->seqno		); 
+	temp_byte = _seqno;
+	escape_chars(temp_byte, byte_cnt);
+	memcpy(&tx_buffer[byte_cnt], &temp_byte         , sizeof(_seqno		    ) ) ; byte_cnt += sizeof(_seqno		  );  //buffer += sizeof(packet->seqno		); 
 
-	/* Writbuffer, e out the Address */                                                                                 //
+	/* Writbuffer, e out the Address */ 
+	memcpy(&tx_buffer[byte_cnt], &_dst_address, sizeof(_dst_address))   ; byte_cnt += sizeof(_dst_address);//
+	/*
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b0, sizeof(_dst_address.b0))   ; byte_cnt += sizeof(_dst_address.b0); //buffer += sizeof(packet->dst_address.b0);
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b1, sizeof(_dst_address.b1))   ; byte_cnt += sizeof(_dst_address.b1); //buffer += sizeof(packet->dst_address.b1);
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b2, sizeof(_dst_address.b2))   ; byte_cnt += sizeof(_dst_address.b2); //buffer += sizeof(packet->dst_address.b2);
@@ -198,7 +238,8 @@ uint16_t Tx64Packet::packet_buf() const
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b5, sizeof(_dst_address.b5))   ; byte_cnt += sizeof(_dst_address.b5); //buffer += sizeof(packet->dst_address.b5);
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b6, sizeof(_dst_address.b6))   ; byte_cnt += sizeof(_dst_address.b6); //buffer += sizeof(packet->dst_address.b6);
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b7, sizeof(_dst_address.b7))   ; byte_cnt += sizeof(_dst_address.b7); //buffer += sizeof(packet->dst_address.b7);
-
+	*/
+	
 	memcpy(&tx_buffer[byte_cnt], &_tx_opts, sizeof(_tx_opts)); byte_cnt += sizeof(_tx_opts);
 	for(int i = 0; i < _payload.size(); i++)
 	{
@@ -206,6 +247,8 @@ uint16_t Tx64Packet::packet_buf() const
 		//		byte_cnt += sizeof(*it);
 		temp_byte = _payload[i];
 		// Escape Characters as specified in Xbee S6B documentation (for API mode 2)
+		escape_chars(temp_byte, byte_cnt);
+		/*
 		switch(temp_byte)
 		{
 		case 0x7E:
@@ -237,10 +280,13 @@ uint16_t Tx64Packet::packet_buf() const
 			byte_cnt++;
 			break;
 		}
+		*/
 
-	}
+	} //End Copy Payload
 	//os<<packet.checksum;
 	temp_byte = _checksum;
+	escape_chars(temp_byte, byte_cnt);
+	/*
 	switch(temp_byte)
 		{
 		case 0x7E:
@@ -272,7 +318,7 @@ uint16_t Tx64Packet::packet_buf() const
 			byte_cnt++;
 			break;
 		}
-
+*/
 	//memcpy(&tx_buffer[byte_cnt], &_checksum, sizeof(_checksum));
 	//byte_cnt += sizeof(_checksum);
 	PRINTF("%d", byte_cnt);
@@ -339,6 +385,9 @@ uint16_t Tx64Packet::prepare2send() {
 
 void Tx64Packet::clear_payload() {
 	_payload.clear();
+	/*Increment the seqNo*/
+	_seqno++;
+	if(_seqno == 0x00) _seqno++;
 	_length = 11;
 }
 
@@ -359,7 +408,8 @@ RxPacket::RxPacket() {
 
 uint8_t * RxPacket::get_pktQ()
 {
-	return &rx_buffer[0];
+	return NULL; 
+	//&rx_buffer[0];
 }
 
 void RxPacket::set_length(uint16_t length) {
