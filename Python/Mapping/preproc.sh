@@ -1,11 +1,22 @@
 #! /bin/bash
 
-cat raw101_integrated | ./inv_map.py > locs.txt
+cat raw101.out | ./inv_map.py > locs.txt
+cat locs.txt > jennyIn101.out
+cat forJennyIns.out >> jennyIn101.out
 
-cat locs.txt > jennyIn1.out
-cat forJennyIns.out >> jennyIn1.out
+#rm locs.txt
+#rm forJennyIns.out
+#cat raw103.out | ./inv_map.py > locs.txt
+#cat locs.txt > jennyIn103.out
+#cat forJennyIns.out >> jennyIn103.out
+#
+#rm locs.txt
+#rm forJennyIns.out
+#cat raw104.out | ./inv_map.py > locs.txt
+#cat locs.txt > jennyIn104.out
+#cat forJennyIns.out >> jennyIn104.out
 
 rm locs.txt
 rm forJennyIns.out
 
-cp jennyIn1.out /home/walter/workspace/routing/
+cp jennyIn10* /home/walter/workspace/routing/.

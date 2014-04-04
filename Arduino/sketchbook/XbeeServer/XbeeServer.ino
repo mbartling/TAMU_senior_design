@@ -36,9 +36,9 @@ void setup()
   digitalWrite(reset_pin, HIGH);
   pinMode(reset_pin, OUTPUT);
   Serial.begin(BAUD_RATE);
-  Serial.println("Starting the Receiver!");
+  Serial.println(F("Starting the Receiver!"));
   second(start_time);
-  Serial.print("Starting time: ");
+  Serial.print(("Starting time: "));
   Serial.println(start_time);
 
   tx_packet.set_Address(0x00000000C0A80164);  
@@ -47,20 +47,15 @@ void setup()
 
   Uart.begin(BAUD_RATE);
 
-  Serial.println("=======================");
-  Serial.println("?: for Receive mode HEX");
-  Serial.println("#: for Receive mode BYTE (for Config)");
-  Serial.println("$: for TX Mode");
-  Serial.println("=======================");
-  Uart.flush();					cmd = "insert into raw_data values(\"%s\",\"%s\", %d, %d, %d)" %(timestamp, addressString, rssi, lat, lon)
-	    				print cmd
-	    				cur.execute(cmd)
-	    				db.commit()
-	    				print "new row added to mysql"
-
-
-
+  Serial.println(F("======================="));
+  Serial.println(F("?: for Receive mode HEX"));
+  Serial.println(F("#: for Receive mode BYTE (for Config)"));
+  Serial.println(F("$: for TX Mode"));
+  Serial.println(F("======================="));
+  Uart.flush();				
+  
 }
+//https://www.pjrc.com/teensy/benchmark_usb_serial_receive.html
 int j = 0;
 int k = 0;
 volatile int enable;
@@ -69,6 +64,7 @@ void loop()
 {
   //static int enable;
   unsigned char c, dtr;
+  //int serCount = 0; //See https://www.pjrc.com/teensy/td_serial.html
   static unsigned char prev_dtr = 0;
   unsigned long currentMillis = millis();
   if (Serial.available()) {
@@ -118,14 +114,14 @@ void loop()
       tx_packet.clear_payload();
       tx_packet.push_back( (uint8_t) j);
       Uart.flush();
-      Serial.println("response");
+      Serial.println(F("response"));
       while(Uart.available())
       {
 
         Serial.print(Uart.read(),HEX);
         Serial.print(" ");
       }
-      Serial.println("EOR");
+      Serial.println(F("EOR"));
 
 
     }
