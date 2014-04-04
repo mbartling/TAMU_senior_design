@@ -20,6 +20,11 @@ yCoords = []
 rssi = []
 #fptr = open('testpoints.out', 'r')
 
+#Fast Max index finder
+def max_ij(x):
+    i, j = divmod(x.argmax(), x.shape[1])
+    return i, j
+    
 def pass1(i, j, xmean, ymean, coefmat):
     xs = i-xmean
     ys = j-ymean
