@@ -108,7 +108,6 @@ try:
 	    					cur.execute(cmd)
 	    					db.commit()
 	    					print "new row added to mysql"
-	1
 
 	print "Closing Xbee Port"
 

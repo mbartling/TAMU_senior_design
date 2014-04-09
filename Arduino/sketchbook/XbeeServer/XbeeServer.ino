@@ -1,7 +1,7 @@
-#include <stdio.h>
+//#include <stdio.h>
 #include <uVector.h>
 #include <XbeeS6.h>
-#include <string.h>
+//#include <string.h>
 #include <Time.h>
 
 
@@ -14,6 +14,7 @@ Tx64Packet tx_packet;
 
 uVector myvector;
 static uint8_t * tx_buffer1;
+//uint8_t * tx_buffer1;
 
 HardwareSerial Uart = HardwareSerial();
 unsigned long baud = 57600;
@@ -25,7 +26,7 @@ const int led_off = LOW;
 volatile time_t start_time;
 time_t current_time;
 long previousMillis = 0;
-long interval = 1000; //in ms
+long interval = 50; //in ms
 
 void setup()
 {
@@ -36,28 +37,24 @@ void setup()
   digitalWrite(reset_pin, HIGH);
   pinMode(reset_pin, OUTPUT);
   Serial.begin(BAUD_RATE);
-  Serial.println("Starting the Receiver!");
+  Serial.println(F("Starting the Receiver!"));
   second(start_time);
-  Serial.print("Starting time: ");
-  Serial.println(start_time);
+  //Serial.print("Starting time: ");
+  //Serial.println(start_time);
 
   tx_packet.set_Address(0x00000000C0A80164);  
-
+//  tx_packet.set_Address(0x00000000FFFFFFFF);
+  
   tx_buffer1 = get_buffer();
 
   Uart.begin(BAUD_RATE);
 
-  Serial.println("=======================");
-  Serial.println("?: for Receive mode HEX");
-  Serial.println("#: for Receive mode BYTE (for Config)");
-  Serial.println("$: for TX Mode");
-  Serial.println("=======================");
-  Uart.flush();					cmd = "insert into raw_data values(\"%s\",\"%s\", %d, %d, %d)" %(timestamp, addressString, rssi, lat, lon)
-	    				print cmd
-	    				cur.execute(cmd)
-	    				db.commit()
-	    				print "new row added to mysql"
-
+  Serial.println(F("======================="));
+  Serial.println(F("?: for Receive mode HEX"));
+  Serial.println(F("#: for Receive mode BYTE (for Config)"));
+  Serial.println(F("$: for TX Mode"));
+  Serial.println(F("======================="));
+  Uart.flush();				
 
 
 }
@@ -108,24 +105,25 @@ void loop()
       {
         Uart.write(tx_buffer1[i]);
       }
-      for(i = 0; i < length; i++)
-      {
-        Serial.print(tx_buffer1[i], HEX); 
-        Serial.print(" ");
-      }
-      Serial.println(' ');
+//      for(i = 0; i < length; i++)
+//      {
+//        Serial.print(tx_buffer1[i], HEX); 
+//        Serial.print(" ");
+//      }
+//      Serial.println(' ');
       j++;
+      if(j == 0x7E) j++;
       tx_packet.clear_payload();
       tx_packet.push_back( (uint8_t) j);
       Uart.flush();
-      Serial.println("response");
+      //Serial.println("response");
       while(Uart.available())
       {
 
         Serial.print(Uart.read(),HEX);
         Serial.print(" ");
       }
-      Serial.println("EOR");
+      //Serial.println("EOR");
 
 
     }
