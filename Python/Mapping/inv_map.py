@@ -5,10 +5,12 @@ import numpy
 from numpy.linalg import inv
 
 DEBUGMODE = 1
+WINDOWS_MODE = 1
 if DEBUGMODE == 1:
-    from mpl_toolkits.mplot3d import Axes3D
+    #from mpl_toolkits.mplot3d import Axes3D
     import matplotlib.pyplot as plt
     import matplotlib.cm as cm
+    from mpl_toolkits.mplot3d import Axes3D
 
 # Parameters Make sure these values correspond with the input locations otherwise we will get weird results
 xres = 300
@@ -18,7 +20,6 @@ weight = 0.5
 xCoords = []
 yCoords = []
 rssi = []
-#fptr = open('testpoints.out', 'r')
 
 #Fast Max index finder
 def max_ij(x):
@@ -46,7 +47,17 @@ def pass2(i, j, xmean, ymean, coefmat):
 
 #for line in sys.stdin:
 i = 0
-#for line in fptr:
+if WINDOWS_MODE == 1:
+    fptr = open('raw101.out', 'r')
+    for line in fptr:
+      line = line.strip()
+      (xCoordIn, yCoordIn, rssiIn) = line.split(',')
+      # print xCoordIn, yCoordIn, rssiIn
+      xCoords.append(xCoordIn)
+      yCoords.append(yCoordIn)
+      rssi.append(rssiIn)
+    
+    fptr.close()
 #    if i == 0:
 #        line = line.strip()
 #        (xres,yres) = line.split(',')
@@ -54,13 +65,14 @@ i = 0
 #        yres = int(yres)
 #        i += 1
 #    else:
-for line in sys.stdin:
-   line = line.strip()
-   (xCoordIn, yCoordIn, rssiIn) = line.split(',')
-   # print xCoordIn, yCoordIn, rssiIn
-   xCoords.append(xCoordIn)
-   yCoords.append(yCoordIn)
-   rssi.append(rssiIn)
+else:
+    for line in sys.stdin:
+      line = line.strip()
+      (xCoordIn, yCoordIn, rssiIn) = line.split(',')
+      # print xCoordIn, yCoordIn, rssiIn
+      xCoords.append(xCoordIn)
+      yCoords.append(yCoordIn)
+      rssi.append(rssiIn)
 
 #fptr.close()
 xloc = numpy.asarray(xCoords, dtype='int32')
@@ -71,6 +83,14 @@ latmin = numpy.min(xloc)
 latmax = numpy.max(xloc)
 lonmin = numpy.min(yloc)
 lonmax = numpy.max(yloc)
+
+fig = plt.figure()
+ax = fig.add_subplot(111,projection='3d')
+
+ax.scatter(xloc,yloc,rssi)
+#plt.show()
+(latmin, latmax) = ax.get_xlim()
+(lonmin, lonmax) = ax.get_ylim()
 
 xlin = numpy.linspace(latmin,latmax,xres)
 ylin = numpy.linspace(lonmin,lonmax,yres)
