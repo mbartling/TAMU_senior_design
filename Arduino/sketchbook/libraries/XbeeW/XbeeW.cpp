@@ -111,9 +111,9 @@ size_t Api_frame::printTo(Print& p) const
 
 	while(i < 63)
 	{
-		if(this[i] == '\r' && this[i+1] == '\n') return n;
+		if(_payload[i] == '\r' && _payload[i+1] == '\n') return n;
 
-		n += p.print(Api_frame::_address[i], BYTE);
+		n += p.print(_payload[i], BYTE);
 		i++;
 	}
 	return n;
@@ -144,8 +144,9 @@ uint8_t Remote_node::checksum() const
 {
 	uint16_t chksum = 0;
 	int i;
-	chksum += _fid;
-	chksum += _seqno;
+
+	chksum += _frame.get_fid();
+	chksum += _frame.get_seqno();
 	chksum += _cmd_opts;
 	for (i = 0; i < 8; i++)
 	{
@@ -154,8 +155,8 @@ uint8_t Remote_node::checksum() const
 	i = 0;
 	while(i < 63)
 	{
-		if(_payload[i] == '\r' && _payload[i+1] == '\n') break;
-		chksum += _payload[i];
+		if(_frame[i] == '\r' && _frame[i+1] == '\n') break;
+		chksum += _frame[i];
 	}
 
 	chksum = 0xFF - (chksum & 0xFF);
@@ -170,13 +171,13 @@ size_t Remote_node::printTo(Print& p) const
 	int i;
 	uint16_t length = 9;
 	uint16_t lengthS;
-	uint8_t chksum = this.checksum();
-	length += this.length();
+	uint8_t chksum = checksum();
+	length += _frame.length();
 	lengthS = ((length >> 8) | (length << 8));
 	n += p.print(0x7E, BYTE);
 	n += p.print(lengthS, BYTE);
-	n += p.print(_fid, BYTE);
-	n += p.print(_seqno, BYTE);
+	n += p.print(_frame.get_fid(), BYTE);
+	n += p.print(_frame.get_seqno(), BYTE);
 
 	n += p.print(_cmd_opts, BYTE);
 	for (i = 0; i < 8; i++)
@@ -186,27 +187,26 @@ size_t Remote_node::printTo(Print& p) const
 	length = length - 11;
 	for( i = 0; i < length; i++)
 	{
-		switch(temp_byte)
+		switch(_frame[i])
 		{
 			case 0x7E:
 				n += p.print(0x7D ,BYTE);
-				n += p.print(_payload[i] ^ 0x20, BYTE);
-				byte_cnt++;
+				n += p.print(_frame[i] ^ 0x20, BYTE);
 				break;
 			case 0x7D:
 				n += p.print(0x7D ,BYTE);
-				n += p.print(_payload[i], BYTE);
+				n += p.print(_frame[i], BYTE);
 				break;
 			case 0x11:
 				n += p.print(0x7D ,BYTE);
-				n += p.print(_payload[i] ^ 0x20, BYTE);
+				n += p.print(_frame[i] ^ 0x20, BYTE);
 				break;
 			case 0x13:
 				n += p.print(0x7D ,BYTE);
-				n += p.print(_payload[i] ^ 0x20, BYTE);
+				n += p.print(_frame[i] ^ 0x20, BYTE);
 				break;
 			default:
-				n += p.print(_payload[i], BYTE);
+				n += p.print(_frame[i], BYTE);
 				break;
 
 		}

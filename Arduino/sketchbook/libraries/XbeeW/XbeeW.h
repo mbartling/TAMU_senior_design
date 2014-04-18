@@ -105,38 +105,23 @@ public:
 
 class Api_frame: public Printable{
 private:
+	uint8_t _fid;
+	uint8_t _seqno;
+	uint8_t _payload[64]; //Max Size Not counting address
+	uint8_t * raw_payload(){return _payload; }
 
 public:
 	Api_frame();
 	Api_frame(uint8_t seqno);
 
-    virtual size_t printTo(Print& p) const;
-    //friend class Remote_node;
-};
-
-
-class Remote_node: public Api_frame{
-private:
-	uint8_t _fid;
-	uint8_t _seqno;
-	uint8_t _payload[64]; //Max Size Not counting address
-	uint8_t * raw_payload(){return _payload; }
-	Address64 	_dst_address;
-	uint8_t 	_cmd_opts;
-	uint8_t		_chksum;
-public:
-	Remote_node():Api_frame(){
-		_cmd_opts 	= 0;
-		_chksum 	= 0;
-	}
-	//Remote_node(uint8_t fid):Api_frame(fid){_cmd_opts = 0;}
-	Remote_node(uint8_t address);
-	Remote_node(uint8_t const *address);
-	Remote_node(Address64 address);
 	void set_fid(uint8_t fid);
+	uint8_t get_fid() {return _fid;};
+	uint8_t get_fid() const {return _fid;};
+	uint8_t get_seqno() {return _seqno;};
+	uint8_t get_seqno() const {return _seqno;};
 // Overloaded index operator to allow getting and setting individual octets of the address
-    uint8_t operator[](int index) const { return _payload[index]; };
-    uint8_t& operator[](int index) { return _payload[index]; };
+     uint8_t operator[](int index) const { return _payload[index]; };
+     uint8_t& operator[](int index) { return _payload[index]; };
     
 	Api_frame& operator++();
     Api_frame operator++(int)
@@ -147,14 +132,35 @@ public:
     }
     void clear();
     virtual size_t length() const;
+    virtual size_t printTo(Print& p) const;
+    //friend class Remote_node;
+};
+
+
+class Remote_node: public Printable{
+private:
+	Address64 	_dst_address;
+	uint8_t 	_cmd_opts;
+	uint8_t		_chksum;
+	Api_frame	_frame;
+
+public:
+	Remote_node(){
+		_cmd_opts 	= 0;
+		_chksum 	= 0;
+	}
+	//Remote_node(uint8_t fid):Api_frame(fid){_cmd_opts = 0;}
+	Remote_node(uint8_t address);
+	Remote_node(uint8_t const *address);
+	Remote_node(Address64 address);
 	
-	void set_fid(uint8_t fid) { Api_frame::set_fid(fid);};
+	void set_fid(uint8_t fid) { _frame.set_fid(fid);};
 // Overloaded index operator to allow getting and setting individual octets of the address
-    uint8_t operator[](int index) const { return Api_frame::operator[](index); };
-    uint8_t& operator[](int index) { return Api_frame::operator[](index); };
+    uint8_t operator[](int index) const { return _frame[index]; };
+    uint8_t& operator[](int index) { return _frame[index]; };
     
-    //void clear() { Api_frame::clear(); }
-    //virtual size_t length() const {return Api_frame::length() + 7; }
+    void clear() { _frame.clear(); }
+    virtual size_t length() const {return _frame.length() + 7; }
 	void 	set_cmd(uint8_t cmd ){ _cmd_opts = cmd; }
 	uint8_t checksum() const;
     virtual size_t printTo(Print& p) const;

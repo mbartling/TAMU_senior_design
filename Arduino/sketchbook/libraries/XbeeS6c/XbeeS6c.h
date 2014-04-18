@@ -1,5 +1,7 @@
-#ifundef __XBEES6C_H__
+#ifndef __XBEES6C_H__
 #define __XBEES6C_H__
+
+#include <stdint.h>
 
 #define ID_TX64_REQ   0x00
 #define ID_REMOTE_AT  0x07
@@ -11,10 +13,11 @@
 /*Need to calculate 2 things, first is the length and second is the checksum which is from byte three to the end*/
 typedef struct Api_frame
 {
-  uint8_t _api_fid;
-  uint8_t _api_seqno;
-  void *  _api_command;
-  void *  _payload;
+  uint8_t  _api_fid;
+  uint8_t  _api_seqno;
+  void *   _api_command;
+  uint16_t _payload_length;
+  void *   _payload;
   
 } Api_frame_t;
 
@@ -22,7 +25,7 @@ typedef struct Address64
 {
   uint32_t _upper;
   uint32_t _lower;
-} Address64_t
+} Address64_t;
 /*
 typedef struct command_Tx64
 {
@@ -30,7 +33,7 @@ typedef struct command_Tx64
   uint8_t     _tx_opts = DISABLE_ACK;
 } command_Tx64_t;
 */
-typedef struct command_Remote /*_AT*/
+typedef struct command_Remote
 {
   Address64_t _cmd_dst_addr;
   uint8_t     _cmd_opts;
