@@ -119,13 +119,9 @@ void loop()
       //Serial.println("response");
       while(Uart.available())
       {
-
         Serial.print(Uart.read(),HEX);
         Serial.print(" ");
       }
-      //Serial.println("EOR");
-
-
     }
     //else
     if(enable == 2) //For command mode use write for repsponse use print

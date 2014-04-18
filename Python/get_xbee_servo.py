@@ -6,6 +6,8 @@ import MySQLdb
 from subprocess import call
 from datetime import date
 FORCE_WRITE = 0
+HORIZONTAL = 0
+VERTICAL = 90
 today = date.today()
 try:
 
@@ -65,9 +67,7 @@ try:
 				addressString = addressString[:-1]
 				print "Initial Address: " + addressString
 
-				if not addressString in address_array:
-					print "Adding address string: " + addressString
-					address_array.append(addressString)
+				
 	
 				# parse rssi
 				rssi = int(packet[15], 16)
@@ -104,30 +104,47 @@ try:
 	    				cur.execute(cmd)
 	    				db.commit()
 	    				print "new row added to mysql"
+					if not addressString in address_array:
+						print "Adding address string: " + addressString
+						address_array.append(addressString)
 
 				else:
 					if lon > -970000000 and lon < -960000000 and lat > 306000000 and lat < 307000000:
-						cmd = "insert into raw_data values(\"%s\",\"%s\", %d, %d, %d, %d)" %(timestamp, addressString, servoPos, rssi, lat, lon)
+						cmd = "insert into raw_data values(\"%s\",\"%s\", %d, %d, %d, %d)" %(timestamp, addressString, rssi, servoPos, lat, lon)
 	    					print cmd
 	    					cur.execute(cmd)
 	    					db.commit()
 	    					print "new row added to mysql"
+						if not addressString in address_array:
+							print "Adding address string: " + addressString
+							address_array.append(addressString)
 
 	print "Closing Xbee Port"
 
 finally:
 	print "output data to file"
-	os.popen('rm -f /home/walter/Code/rawData/*.txt')
-	os.popen('rm -f /tmp/raw101.txt')
+	# os.popen('rm -f /home/walter/Code/rawData/*.txt')
+	# os.popen('rm -f /tmp/raw101.txt')
 	for address in address_array:
+		# write horizontal
 		address_split = address.split('.');
-		filename = '/tmp/raw' + address_split[3] + '.txt'
+		filename = '/tmp/raw' + address_split[3] + 'horiz.txt'
 		os.popen('rm ' + filename)
 		print filename
-		cmd = "select row, col, rssi from raw_data where address = \'%s\' into outfile \'%s\' fields terminated by ','" %(address, filename)
+		cmd = "select row, col, rssi from raw_data where address = \'%s\' and servoPos = %d into outfile \'%s\' fields terminated by ','" %(address, HORIZONTAL, filename)
 		print cmd
 		cur.execute(cmd)
-		cmd = 'cp ' + filename + ' /home/walter/Code/rawData/raw' + address_split[3] + today.strftime("-%y-%m-%d") + '.out'
+		cmd = 'cp ' + filename + ' /home/walter/Code/rawData/raw' + address_split[3] + today.strftime("-%y-%m-%d") + 'horiz.out'
+		print cmd
+		os.popen(cmd)
+
+		filename = '/tmp/raw' + address_split[3] + 'vert.txt'
+		os.popen('rm ' + filename)
+		print filename
+		cmd = "select row, col, rssi from raw_data where address = \'%s\' and servoPos = %d into outfile \'%s\' fields terminated by ','" %(address, VERTICAL, filename)
+		print cmd
+		cur.execute(cmd)
+		cmd = 'cp ' + filename + ' /home/walter/Code/rawData/raw' + address_split[3] + today.strftime("-%y-%m-%d") + 'vert.out'
 		print cmd
 		os.popen(cmd)
 	print "closing xbee port and database"
