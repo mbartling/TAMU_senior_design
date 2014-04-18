@@ -1,6 +1,5 @@
 #include <stdio.h>
-#include <uVector.h>
-#include <XbeeS6.h>
+#include <XbeeW.h>
 #include <string.h>
 #include <Time.h>
 
@@ -9,12 +8,8 @@
 //#include "XbeeS6.h"
 #define BAUD_RATE 57600
 
-#define SERVER_ADDR 0x66
 
-Tx64Packet tx_packet;
-
-uVector myvector;
-static uint8_t * tx_buffer1;
+Remote_node tx_packet = Remote_node(0xc0a8164);
 
 HardwareSerial Uart = HardwareSerial();
 unsigned long baud = 57600;
@@ -39,23 +34,23 @@ void setup()
   Serial.begin(BAUD_RATE);
   Serial.println(F("Starting the Receiver!"));
   second(start_time);
-  Serial.print(("Starting time: "));
+  Serial.print(F("Starting time: "));
   Serial.println(start_time);
 
-  tx_packet.set_Address(0x00000000C0A80164);  
-
-  tx_buffer1 = get_buffer();
-
+  tx_packet[0] = 0xDE;
+  tx_packet[1] = 0xAD;
+  tx_packet[2] = '\r';
+  tx_packet[3] = '\n';
+  Serial.print(tx_packet);
   Uart.begin(BAUD_RATE);
 
   Serial.println(F("======================="));
   Serial.println(F("?: for Receive mode HEX"));
   Serial.println(F("#: for Receive mode BYTE (for Config)"));
   Serial.println(F("$: for TX Mode"));
-  Serial.println(F("&: for Relay Mode"));
   Serial.println(F("======================="));
   Uart.flush();				
-
+  
 }
 //https://www.pjrc.com/teensy/benchmark_usb_serial_receive.html
 int j = 0;
@@ -84,13 +79,8 @@ void loop()
       enable = 2; 
       return; 
     }
-    if(c == '&' ){
-      enable = 4;
-      return;
-    }
     if(c == '^') {
       Uart.flush(); 
-      tx_packet.set_Address(0x00000000C0A80164);  
       return; 
     }
     Uart.write(c);
@@ -104,22 +94,17 @@ void loop()
     if(enable == 1)
     {
 
-      uint16_t length = tx_packet.prepare2send();
+      uint16_t length = tx_packet.length();
       uint16_t i;
 
+      Uart.print(tx_packet);
       for(i = 0; i < length; i++)
       {
-        Uart.write(tx_buffer1[i]);
-      }
-      for(i = 0; i < length; i++)
-      {
-        Serial.print(tx_buffer1[i], HEX); 
+        Serial.print(tx_packet[i], HEX); 
         Serial.print(" ");
       }
       Serial.println(' ');
       j++;
-      tx_packet.clear_payload();
-      tx_packet.push_back( (uint8_t) j);
       Uart.flush();
       Serial.println(F("response"));
       while(Uart.available())
@@ -162,31 +147,9 @@ void loop()
         return;
       } 
     }
-    if(enable == 4) //For gnd nodes
-    {
-      if(Uart.available())
-      {
-        tx_packet.clear_payload();
-        tx_packet.set_Address(0x00000000C0A80166);  
-        while(Uart.available())
-        {
-          tx_packet.push_back( (uint8_t) Uart.read());
-          //Serial.print(Uart.read(),HEX);
-          //Serial.print(" ");
-        }
-
-        uint16_t length = tx_packet.prepare2send();
-        uint16_t i;
-
-        for(i = 0; i < length; i++)
-        {
-          Uart.write(tx_buffer1[i]);
-        }
-      }
-    }
     previousMillis = currentMillis;
   }
-
+  
   /* Control Bootloader*/
   dtr = Serial.dtr();
   if (dtr && !prev_dtr) {
@@ -221,5 +184,4 @@ void loop()
 
 
 }
-
 
