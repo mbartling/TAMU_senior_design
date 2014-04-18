@@ -17,7 +17,8 @@ public:
 	Address64();
 	Address64(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4);
 	Address64(uint32_t address);
-	Address64(const uint32_t * address);
+	//Address64(const uint32_t * address);
+	Address64(const uint8_t * address);
 
 	// Overloaded cast operator to allow IPAddress objects to be used where a pointer
     // to a four-byte uint8_t array is expected
@@ -42,7 +43,7 @@ public:
     friend class Remote_node;
     virtual size_t printTo(Print& p) const;
 };
-
+/*
 class Api_frame: public Printable{
 private:
 	uint8_t _fid;
@@ -56,10 +57,10 @@ public:
 
 	void set_fid(uint8_t fid);
 // Overloaded index operator to allow getting and setting individual octets of the address
-    uint8_t operator[](int index) const { return _payload[index]; };
-    uint8_t& operator[](int index) { return _payload[index]; };
-
-    Api_frame& operator++();
+     uint8_t operator[](int index) const { return _payload[index]; };
+     uint8_t& operator[](int index) { return _payload[index]; };
+    
+	Api_frame& operator++();
     Api_frame operator++(int)
     {
     	Api_frame tmp(*this);
@@ -69,9 +70,11 @@ public:
     void clear();
     virtual size_t length() const;
     virtual size_t printTo(Print& p) const;
+    //friend class Remote_node;
 };
 
-class Remote_node: private Api_frame{
+
+class Remote_node: public Api_frame{
 private:
 	Address64 	_dst_address;
 	uint8_t 	_cmd_opts;
@@ -85,6 +88,73 @@ public:
 	Remote_node(uint8_t address);
 	Remote_node(uint8_t const *address);
 	Remote_node(Address64 address);
+	
+	void set_fid(uint8_t fid) { Api_frame::set_fid(fid);};
+// Overloaded index operator to allow getting and setting individual octets of the address
+    uint8_t operator[](int index) const { return Api_frame::operator[](index); };
+    uint8_t& operator[](int index) { return Api_frame::operator[](index); };
+    
+    //void clear() { Api_frame::clear(); }
+    //virtual size_t length() const {return Api_frame::length() + 7; }
+	void 	set_cmd(uint8_t cmd ){ _cmd_opts = cmd; }
+	uint8_t checksum() const;
+    virtual size_t printTo(Print& p) const;
+};
+*/
+
+
+class Api_frame: public Printable{
+private:
+
+public:
+	Api_frame();
+	Api_frame(uint8_t seqno);
+
+    virtual size_t printTo(Print& p) const;
+    //friend class Remote_node;
+};
+
+
+class Remote_node: public Api_frame{
+private:
+	uint8_t _fid;
+	uint8_t _seqno;
+	uint8_t _payload[64]; //Max Size Not counting address
+	uint8_t * raw_payload(){return _payload; }
+	Address64 	_dst_address;
+	uint8_t 	_cmd_opts;
+	uint8_t		_chksum;
+public:
+	Remote_node():Api_frame(){
+		_cmd_opts 	= 0;
+		_chksum 	= 0;
+	}
+	//Remote_node(uint8_t fid):Api_frame(fid){_cmd_opts = 0;}
+	Remote_node(uint8_t address);
+	Remote_node(uint8_t const *address);
+	Remote_node(Address64 address);
+	void set_fid(uint8_t fid);
+// Overloaded index operator to allow getting and setting individual octets of the address
+    uint8_t operator[](int index) const { return _payload[index]; };
+    uint8_t& operator[](int index) { return _payload[index]; };
+    
+	Api_frame& operator++();
+    Api_frame operator++(int)
+    {
+    	Api_frame tmp(*this);
+    	operator++();
+    	return tmp;
+    }
+    void clear();
+    virtual size_t length() const;
+	
+	void set_fid(uint8_t fid) { Api_frame::set_fid(fid);};
+// Overloaded index operator to allow getting and setting individual octets of the address
+    uint8_t operator[](int index) const { return Api_frame::operator[](index); };
+    uint8_t& operator[](int index) { return Api_frame::operator[](index); };
+    
+    //void clear() { Api_frame::clear(); }
+    //virtual size_t length() const {return Api_frame::length() + 7; }
 	void 	set_cmd(uint8_t cmd ){ _cmd_opts = cmd; }
 	uint8_t checksum() const;
     virtual size_t printTo(Print& p) const;
