@@ -10,7 +10,7 @@
 #endif /* DEBUG_MODE */
 
 #define BYTE_MASK(inVal, offset) (uint8_t)((inVal >> offset) & 0xFF)
-
+#define ACK_DISABLED 0x01
 #define PROCESS_COMMANDS() /* DUMMY */
 
 int the_endianness;
@@ -24,7 +24,7 @@ enum {
 };
 
 //tx_buffer[TX_BUFFER_SIZE];
-uint8_t tx_buffer[TX_BUFFER_SIZE];
+static uint8_t tx_buffer[TX_BUFFER_SIZE];
 
 // Rx buffer
 //uint8_t rx_buffer[64];
@@ -172,7 +172,7 @@ Tx64Packet::Tx64Packet() {
 	_API_frame_id = 0x00;
 	_seqno = 1;
 	memcpy(&_dst_address, &broadcastAddress, sizeof(broadcastAddress));
-	_tx_opts = 0x00;
+	_tx_opts = ACK_DISABLED;
 }
 
 Tx64Packet::Tx64Packet(Address64_t* dst_address) {
@@ -181,7 +181,7 @@ Tx64Packet::Tx64Packet(Address64_t* dst_address) {
 	_API_frame_id = 0x00;
 	_seqno = 1;
 	memcpy(&_dst_address, dst_address, sizeof(*dst_address));
-	_tx_opts = 0x00;
+	_tx_opts = ACK_DISABLED;
 }
 
 Tx64Packet::Tx64Packet(uint8_t seqno) {
@@ -190,7 +190,7 @@ Tx64Packet::Tx64Packet(uint8_t seqno) {
 	_API_frame_id = 0x00;
 	_seqno = seqno;
 	memcpy(&_dst_address, &broadcastAddress, sizeof(broadcastAddress));
-	_tx_opts = 0x00;
+	_tx_opts = ACK_DISABLED;
 }
 
 Tx64Packet::Tx64Packet(uint8_t seqno, Address64_t* dst_address) {
@@ -199,7 +199,7 @@ Tx64Packet::Tx64Packet(uint8_t seqno, Address64_t* dst_address) {
 	_API_frame_id = 0x00;
 	_seqno = seqno;
 	memcpy(&_dst_address, dst_address, sizeof(*dst_address));
-	_tx_opts = 0x00;
+	_tx_opts = ACK_DISABLED;
 }
 
 /**

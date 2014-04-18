@@ -1,8 +1,12 @@
 #! /bin/bash
 
-cat raw101.out | ./inv_map.py > locs.txt
-cat locs.txt > jennyIn101.out
-cat forJennyIns.out >> jennyIn101.out
+cat raw101horiz.out | ./inv_map.py > locs.txt
+cat locs.txt > jennyIn101horiz.out
+cat forJennyIns.out >> jennyIn101horiz.out # append rssi matrix
+
+cat raw101vert.out | ./inv_map.py > locs.txt
+cat locs.txt > jennyIn101vert.out
+cat forJennyIns.out >> jennyIn101vert.out
 
 #rm locs.txt
 #rm forJennyIns.out
@@ -20,3 +24,5 @@ rm locs.txt
 rm forJennyIns.out
 
 cp jennyIn10* /home/walter/workspace/routing/.
+cp xSpace.out /home/walter/workspace/routing/.
+cp ySpace.out /home/walter/workspace/routing/.

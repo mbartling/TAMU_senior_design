@@ -5,7 +5,7 @@ import numpy
 from numpy.linalg import inv
 
 DEBUGMODE = 1
-WINDOWS_MODE = 1
+WINDOWS_MODE = 0
 if DEBUGMODE == 1:
     #from mpl_toolkits.mplot3d import Axes3D
     import matplotlib.pyplot as plt
@@ -83,6 +83,7 @@ latmin = numpy.min(xloc)
 latmax = numpy.max(xloc)
 lonmin = numpy.min(yloc)
 lonmax = numpy.max(yloc)
+rssiMax = numpy.max(rssi)
 
 fig = plt.figure()
 ax = fig.add_subplot(111,projection='3d')
@@ -203,6 +204,10 @@ if DEBUGMODE == 1:
     plt.show()
 
 print xe, ye
+
+# de-normalize the rssi information
+gamemap = gamemap*rssiMax
+
 numpy.savetxt("forJennyIns.out", gamemap, delimiter=" ")
 numpy.savetxt("forJennyIns.csv", gamemap, delimiter=",")
 
@@ -213,5 +218,5 @@ numpy.savetxt("ySpace.out", ylin, delimiter = " ")
 #    for j in range(yres):
 #        print gamemap[i,j]
 
-numpy.savetxt("xSpace.out", xlin, delimiter=" ")
-numpy.savetxt("yypace.out", ylin, delimiter=" ")
+#numpy.savetxt("xSpace.out", xlin, delimiter=" ")
+#numpy.savetxt("yypace.out", ylin, delimiter=" ")

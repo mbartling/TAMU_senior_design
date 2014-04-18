@@ -1,7 +1,7 @@
-#include <stdio.h>
+//#include <stdio.h>
 #include <uVector.h>
 #include <XbeeS6.h>
-#include <string.h>
+//#include <string.h>
 #include <Time.h>
 
 
@@ -14,6 +14,7 @@ Tx64Packet tx_packet;
 
 uVector myvector;
 static uint8_t * tx_buffer1;
+//uint8_t * tx_buffer1;
 
 HardwareSerial Uart = HardwareSerial();
 unsigned long baud = 57600;
@@ -25,7 +26,7 @@ const int led_off = LOW;
 volatile time_t start_time;
 time_t current_time;
 long previousMillis = 0;
-long interval = 1000; //in ms
+long interval = 50; //in ms
 
 void setup()
 {
@@ -38,11 +39,12 @@ void setup()
   Serial.begin(BAUD_RATE);
   Serial.println(F("Starting the Receiver!"));
   second(start_time);
-  Serial.print(("Starting time: "));
-  Serial.println(start_time);
+  //Serial.print("Starting time: ");
+  //Serial.println(start_time);
 
   tx_packet.set_Address(0x00000000C0A80164);  
-
+//  tx_packet.set_Address(0x00000000FFFFFFFF);
+  
   tx_buffer1 = get_buffer();
 
   Uart.begin(BAUD_RATE);
@@ -53,7 +55,8 @@ void setup()
   Serial.println(F("$: for TX Mode"));
   Serial.println(F("======================="));
   Uart.flush();				
-  
+
+
 }
 //https://www.pjrc.com/teensy/benchmark_usb_serial_receive.html
 int j = 0;
@@ -104,26 +107,23 @@ void loop()
       {
         Uart.write(tx_buffer1[i]);
       }
-      for(i = 0; i < length; i++)
-      {
-        Serial.print(tx_buffer1[i], HEX); 
-        Serial.print(" ");
-      }
-      Serial.println(' ');
+//      for(i = 0; i < length; i++)
+//      {
+//        Serial.print(tx_buffer1[i], HEX); 
+//        Serial.print(" ");
+//      }
+//      Serial.println(' ');
       j++;
+      if(j == 0x7E) j++;
       tx_packet.clear_payload();
       tx_packet.push_back( (uint8_t) j);
       Uart.flush();
-      Serial.println(F("response"));
+      //Serial.println("response");
       while(Uart.available())
       {
-
         Serial.print(Uart.read(),HEX);
         Serial.print(" ");
       }
-      Serial.println(F("EOR"));
-
-
     }
     //else
     if(enable == 2) //For command mode use write for repsponse use print
