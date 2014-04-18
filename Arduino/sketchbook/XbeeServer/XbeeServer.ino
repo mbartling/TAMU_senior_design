@@ -58,6 +58,7 @@ void setup()
 
 
 }
+//https://www.pjrc.com/teensy/benchmark_usb_serial_receive.html
 int j = 0;
 int k = 0;
 volatile int enable;
@@ -66,6 +67,7 @@ void loop()
 {
   //static int enable;
   unsigned char c, dtr;
+  //int serCount = 0; //See https://www.pjrc.com/teensy/td_serial.html
   static unsigned char prev_dtr = 0;
   unsigned long currentMillis = millis();
   if (Serial.available()) {
