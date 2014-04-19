@@ -174,7 +174,7 @@ uint16_t Tx64Packet::packet_buf() const
 {
 	//uint64_t temp = packet.get_Address();
 	uint16_t byte_cnt;
-
+	uint8_t temp_byte;
 	/* Need to byteswap the packet length first */
 	uint16_t temp;
 	temp = (_length >> 8) | (_length << 8);
@@ -201,8 +201,41 @@ uint16_t Tx64Packet::packet_buf() const
 	{
 		//		memcpy(&tx_buffer[byte_cnt], &(*it), sizeof(*it));
 		//		byte_cnt += sizeof(*it);
-		tx_buffer[byte_cnt] = _payload[i];
-		byte_cnt++;
+		temp_byte = _payload[i];
+ 		 switch(temp_byte)
+		{
+		case 0x7E:
+			tx_buffer[byte_cnt] = 0x7D;
+			byte_cnt++;
+			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
+			byte_cnt++;
+			break;
+		case 0x7D:
+			tx_buffer[byte_cnt] = 0x7D;
+			byte_cnt++;
+			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
+			byte_cnt++;
+			break;
+		case 0x11:
+			tx_buffer[byte_cnt] = 0x7D;
+			byte_cnt++;
+			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
+			byte_cnt++;
+			break;
+		case 0x13:
+			tx_buffer[byte_cnt] = 0x7D;
+			byte_cnt++;
+			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
+			byte_cnt++;
+			break;
+		default:
+			tx_buffer[byte_cnt] = temp_byte;
+			byte_cnt++;
+			break;
+		}
+
+		//tx_buffer[byte_cnt] = _payload[i];
+		//byte_cnt++;
 	}
 	//os<<packet.checksum;
 	memcpy(&tx_buffer[byte_cnt], &_checksum, sizeof(_checksum));
