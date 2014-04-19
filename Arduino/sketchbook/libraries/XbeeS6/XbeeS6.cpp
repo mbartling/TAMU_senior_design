@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "XbeeS6.h"
 //#include <iterator>
-#define DEBUG_MODE 0
+#define DEBUG_MODE 1
 #if DEBUG_MODE
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -10,7 +10,7 @@
 #endif /* DEBUG_MODE */
 
 #define BYTE_MASK(inVal, offset) (uint8_t)((inVal >> offset) & 0xFF)
-#define ACK_DISABLED 0x01
+
 #define PROCESS_COMMANDS() /* DUMMY */
 
 int the_endianness;
@@ -24,51 +24,12 @@ enum {
 };
 
 //tx_buffer[TX_BUFFER_SIZE];
-static uint8_t tx_buffer[TX_BUFFER_SIZE];
-
-// Rx buffer
-//uint8_t rx_buffer[64];
+uint8_t tx_buffer[TX_BUFFER_SIZE];
 
 uint8_t * get_buffer()
 {
 	return &tx_buffer[0];
 }
-
-void escape_chars(uint8_t temp_byte, uint16_t &byte_cnt)
-{
-	switch(temp_byte)
-	{
-		case 0x7E:
-			tx_buffer[byte_cnt] = 0x7D;
-			byte_cnt++;
-			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
-			byte_cnt++;
-			break;
-		case 0x7D:
-			tx_buffer[byte_cnt] = 0x7D;
-			byte_cnt++;
-			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
-			byte_cnt++;
-			break;
-		case 0x11:
-			tx_buffer[byte_cnt] = 0x7D;
-			byte_cnt++;
-			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
-			byte_cnt++;
-			break;
-		case 0x13:
-			tx_buffer[byte_cnt] = 0x7D;
-			byte_cnt++;
-			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
-			byte_cnt++;
-			break;
-		default:
-			tx_buffer[byte_cnt] = temp_byte;
-			byte_cnt++;
-			break;
-		}
-}
-
 /* This will help with debugging
  * We can use this to figure out bytes are being packed.
  */
@@ -172,7 +133,7 @@ Tx64Packet::Tx64Packet() {
 	_API_frame_id = 0x00;
 	_seqno = 1;
 	memcpy(&_dst_address, &broadcastAddress, sizeof(broadcastAddress));
-	_tx_opts = ACK_DISABLED;
+	_tx_opts = 0x00;
 }
 
 Tx64Packet::Tx64Packet(Address64_t* dst_address) {
@@ -181,7 +142,7 @@ Tx64Packet::Tx64Packet(Address64_t* dst_address) {
 	_API_frame_id = 0x00;
 	_seqno = 1;
 	memcpy(&_dst_address, dst_address, sizeof(*dst_address));
-	_tx_opts = ACK_DISABLED;
+	_tx_opts = 0x00;
 }
 
 Tx64Packet::Tx64Packet(uint8_t seqno) {
@@ -190,7 +151,7 @@ Tx64Packet::Tx64Packet(uint8_t seqno) {
 	_API_frame_id = 0x00;
 	_seqno = seqno;
 	memcpy(&_dst_address, &broadcastAddress, sizeof(broadcastAddress));
-	_tx_opts = ACK_DISABLED;
+	_tx_opts = 0x00;
 }
 
 Tx64Packet::Tx64Packet(uint8_t seqno, Address64_t* dst_address) {
@@ -199,7 +160,7 @@ Tx64Packet::Tx64Packet(uint8_t seqno, Address64_t* dst_address) {
 	_API_frame_id = 0x00;
 	_seqno = seqno;
 	memcpy(&_dst_address, dst_address, sizeof(*dst_address));
-	_tx_opts = ACK_DISABLED;
+	_tx_opts = 0x00;
 }
 
 /**
@@ -213,7 +174,7 @@ uint16_t Tx64Packet::packet_buf() const
 {
 	//uint64_t temp = packet.get_Address();
 	uint16_t byte_cnt;
-	uint8_t temp_byte;
+
 	/* Need to byteswap the packet length first */
 	uint16_t temp;
 	temp = (_length >> 8) | (_length << 8);
@@ -221,15 +182,11 @@ uint16_t Tx64Packet::packet_buf() const
 
 
 	memcpy(&tx_buffer[byte_cnt], &_sf			 , sizeof(_sf			    ) ) ; byte_cnt += sizeof(_sf			  );  //buffer += sizeof(packet->sf			);
-	memcpy(&tx_buffer[byte_cnt], &temp			 , sizeof(temp		    	) ) ; byte_cnt += sizeof(_length		  );  //buffer += sizeof(packet->length		);
-	memcpy(&tx_buffer[byte_cnt], &_API_frame_id  , sizeof(_API_frame_id   	) ) ; byte_cnt += sizeof(_API_frame_id );  //buffer += sizeof(packet->API_frame_id);
-	temp_byte = _seqno;
-	escape_chars(temp_byte, byte_cnt);
-	memcpy(&tx_buffer[byte_cnt], &temp_byte         , sizeof(_seqno		    ) ) ; byte_cnt += sizeof(_seqno		  );  //buffer += sizeof(packet->seqno		); 
+	memcpy(&tx_buffer[byte_cnt], &temp			 , sizeof(temp		    ) ) ; byte_cnt += sizeof(_length		  );  //buffer += sizeof(packet->length		);
+	memcpy(&tx_buffer[byte_cnt], &_API_frame_id  , sizeof(_API_frame_id   ) ) ; byte_cnt += sizeof(_API_frame_id );  //buffer += sizeof(packet->API_frame_id);  
+	memcpy(&tx_buffer[byte_cnt], &_seqno         , sizeof(_seqno		    ) ) ; byte_cnt += sizeof(_seqno		  );  //buffer += sizeof(packet->seqno		); 
 
-	/* Writbuffer, e out the Address */ 
-	memcpy(&tx_buffer[byte_cnt], &_dst_address, sizeof(_dst_address))   ; byte_cnt += sizeof(_dst_address);//
-	/*
+	/* Writbuffer, e out the Address */                                                                                 //
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b0, sizeof(_dst_address.b0))   ; byte_cnt += sizeof(_dst_address.b0); //buffer += sizeof(packet->dst_address.b0);
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b1, sizeof(_dst_address.b1))   ; byte_cnt += sizeof(_dst_address.b1); //buffer += sizeof(packet->dst_address.b1);
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b2, sizeof(_dst_address.b2))   ; byte_cnt += sizeof(_dst_address.b2); //buffer += sizeof(packet->dst_address.b2);
@@ -238,89 +195,18 @@ uint16_t Tx64Packet::packet_buf() const
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b5, sizeof(_dst_address.b5))   ; byte_cnt += sizeof(_dst_address.b5); //buffer += sizeof(packet->dst_address.b5);
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b6, sizeof(_dst_address.b6))   ; byte_cnt += sizeof(_dst_address.b6); //buffer += sizeof(packet->dst_address.b6);
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b7, sizeof(_dst_address.b7))   ; byte_cnt += sizeof(_dst_address.b7); //buffer += sizeof(packet->dst_address.b7);
-	*/
-	
+
 	memcpy(&tx_buffer[byte_cnt], &_tx_opts, sizeof(_tx_opts)); byte_cnt += sizeof(_tx_opts);
 	for(int i = 0; i < _payload.size(); i++)
 	{
 		//		memcpy(&tx_buffer[byte_cnt], &(*it), sizeof(*it));
 		//		byte_cnt += sizeof(*it);
-		temp_byte = _payload[i];
-		// Escape Characters as specified in Xbee S6B documentation (for API mode 2)
-		escape_chars(temp_byte, byte_cnt);
-		/*
-		switch(temp_byte)
-		{
-		case 0x7E:
-			tx_buffer[byte_cnt] = 0x7D;
-			byte_cnt++;
-			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
-			byte_cnt++;
-			break;
-		case 0x7D:
-			tx_buffer[byte_cnt] = 0x7D;
-			byte_cnt++;
-			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
-			byte_cnt++;
-			break;
-		case 0x11:
-			tx_buffer[byte_cnt] = 0x7D;
-			byte_cnt++;
-			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
-			byte_cnt++;
-			break;
-		case 0x13:
-			tx_buffer[byte_cnt] = 0x7D;
-			byte_cnt++;
-			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
-			byte_cnt++;
-			break;
-		default:
-			tx_buffer[byte_cnt] = temp_byte;
-			byte_cnt++;
-			break;
-		}
-		*/
-
-	} //End Copy Payload
+		tx_buffer[byte_cnt] = _payload[i];
+		byte_cnt++;
+	}
 	//os<<packet.checksum;
-	temp_byte = _checksum;
-	escape_chars(temp_byte, byte_cnt);
-	/*
-	switch(temp_byte)
-		{
-		case 0x7E:
-			tx_buffer[byte_cnt] = 0x7D;
-			byte_cnt++;
-			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
-			byte_cnt++;
-			break;
-		case 0x7D:
-			tx_buffer[byte_cnt] = 0x7D;
-			byte_cnt++;
-			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
-			byte_cnt++;
-			break;
-		case 0x11:
-			tx_buffer[byte_cnt] = 0x7D;
-			byte_cnt++;
-			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
-			byte_cnt++;
-			break;
-		case 0x13:
-			tx_buffer[byte_cnt] = 0x7D;
-			byte_cnt++;
-			tx_buffer[byte_cnt] = temp_byte ^ 0x20;
-			byte_cnt++;
-			break;
-		default:
-			tx_buffer[byte_cnt] = temp_byte;
-			byte_cnt++;
-			break;
-		}
-*/
-	//memcpy(&tx_buffer[byte_cnt], &_checksum, sizeof(_checksum));
-	//byte_cnt += sizeof(_checksum);
+	memcpy(&tx_buffer[byte_cnt], &_checksum, sizeof(_checksum));
+	byte_cnt += sizeof(_checksum);
 	PRINTF("%d", byte_cnt);
 	return byte_cnt;
 }
@@ -385,9 +271,6 @@ uint16_t Tx64Packet::prepare2send() {
 
 void Tx64Packet::clear_payload() {
 	_payload.clear();
-	/*Increment the seqNo*/
-	_seqno++;
-	if(_seqno == 0x00) _seqno++;
 	_length = 11;
 }
 
@@ -404,12 +287,6 @@ void Tx64Packet::setTxOpts(uint8_t txOpts) {
 RxPacket::RxPacket() {
 	_sf = 0x7E;
 	_length = 0;
-}
-
-uint8_t * RxPacket::get_pktQ()
-{
-	return NULL; 
-	//&rx_buffer[0];
 }
 
 void RxPacket::set_length(uint16_t length) {
@@ -444,7 +321,6 @@ int  RxPacket::process()
 	case 0x80:
 		if( Rx64Parse() > 0){
 			_length = _msgQ.size();
-			//memcpy(&rx_buffer[0], 
 			clear_API_frame();
 			return 0x80;
 		}
@@ -518,7 +394,7 @@ int RxPacket::Rx64Parse()
 	/* Write the RSSI information */
 	_msgQ.push_back(' ');
 	_msgQ.push_back('R');
-	//	i++; //want to increment i
+//	i++; //want to increment i
 	_msgQ.push_back(_API_frame[i]);
 
 	//skip the options byte

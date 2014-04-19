@@ -42,8 +42,8 @@ void setup()
   //Serial.print("Starting time: ");
   //Serial.println(start_time);
 
-//  tx_packet.set_Address(0x00000000C0A80164);  
-  tx_packet.set_Address(0x00000000FFFFFFFF);
+  tx_packet.set_Address(0x00000000C0A80164);  
+//  tx_packet.set_Address(0x00000000FFFFFFFF);
   
   tx_buffer1 = get_buffer();
 

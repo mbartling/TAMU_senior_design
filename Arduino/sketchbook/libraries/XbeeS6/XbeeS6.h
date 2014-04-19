@@ -129,7 +129,6 @@ public:
 	int process();
 	uint8_t getApiFrameId() const ; //API_frame[0]
 	uint8_t getApiFrame(int i) ;
-	uint8_t * get_pktQ();
 	const uint8_t getApiFrame(int i) const;
 
 	uint8_t getChecksum() const ; //API_frame[length];
