@@ -42,8 +42,8 @@ void setup()
   //Serial.print("Starting time: ");
   //Serial.println(start_time);
 
-  tx_packet.set_Address(0x00000000C0A80164);  
-//  tx_packet.set_Address(0x00000000FFFFFFFF);
+//  tx_packet.set_Address(0x00000000C0A80164);  
+  tx_packet.set_Address(0x00000000FFFFFFFF);
   
   tx_buffer1 = get_buffer();
 
@@ -58,7 +58,6 @@ void setup()
 
 
 }
-//https://www.pjrc.com/teensy/benchmark_usb_serial_receive.html
 int j = 0;
 int k = 0;
 volatile int enable;
@@ -67,7 +66,6 @@ void loop()
 {
   //static int enable;
   unsigned char c, dtr;
-  //int serCount = 0; //See https://www.pjrc.com/teensy/td_serial.html
   static unsigned char prev_dtr = 0;
   unsigned long currentMillis = millis();
   if (Serial.available()) {
@@ -107,12 +105,12 @@ void loop()
       {
         Uart.write(tx_buffer1[i]);
       }
-//      for(i = 0; i < length; i++)
-//      {
-//        Serial.print(tx_buffer1[i], HEX); 
-//        Serial.print(" ");
-//      }
-//      Serial.println(' ');
+      for(i = 0; i < length; i++)
+      {
+        Serial.print(tx_buffer1[i], HEX); 
+        Serial.print(" ");
+      }
+      Serial.println(' ');
       j++;
       if(j == 0x7E) j++;
       tx_packet.clear_payload();
