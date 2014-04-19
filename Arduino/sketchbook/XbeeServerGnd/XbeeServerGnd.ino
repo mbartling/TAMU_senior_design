@@ -12,7 +12,7 @@
 //#define SERVER_ADDR 0x66
 
 Tx64Packet tx_packet;
-
+int rec_index;
 //uVector myvector;
 uint8_t * tx_buffer1;
 uint8_t rec_buf[64];
@@ -151,7 +151,7 @@ void loop()
       //if(enable == 4) //For gnd nodes
       {
         int k = 0;
-        static int rec_index;
+        
         char cv;
         if(Uart.available())
         {
@@ -163,7 +163,7 @@ void loop()
               rec_index = 0;
               rec_buf[rec_index++] = cv;
 
-              if(rec_buf[3] = 0x80)
+              if(rec_buf[3] == 0x80)
               {
                 tx_packet.push_back(rec_buf[11]);
                 tx_packet.push_back(rec_buf[12]);
