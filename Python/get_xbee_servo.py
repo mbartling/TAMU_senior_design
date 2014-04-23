@@ -44,7 +44,7 @@ try:
 			packet = line.split()
 			print line;
 			if len(packet) > 1 and packet[0] == '7E':
-				if len(packet) < 25  or  int(packet[11], 16) != 0x64:
+				if len(packet) < 26  or  int(packet[11], 16) != 0x64:
 					print "Packet len is: " + "{0}".format(len(packet))
 					continue;
 				# calling system command for timestamp

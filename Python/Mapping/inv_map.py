@@ -114,7 +114,7 @@ amat[: , 1] = ys**2;
 amat[: , 2] = xs*ys;
 amat[: , 3] = xs;
 amat[: , 4] = ys;
-amat[: , 5] = 1;
+amat[: , 5] = 1e-9;
 
 #print amat
 
