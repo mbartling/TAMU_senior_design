@@ -10,7 +10,7 @@ private:
     // to the internal structure rather than a copy of the address this function should only
     // be used when you know that the usage of the returned uint8_t* will be transient and not
     // stored.
-	uint8_t* raw_address(){ return _address; }
+	uint8_t* raw_address(){ return _address; };
 
 public:
 	// For now will fake the 64 bit
@@ -104,10 +104,12 @@ public:
 
 
 class Api_frame: public Printable{
-private:
+protected:
+	
 	uint8_t _fid;
 	uint8_t _seqno;
 	uint8_t _payload[64]; //Max Size Not counting address
+private:
 	uint8_t * raw_payload(){return _payload; }
 
 public:
@@ -137,12 +139,12 @@ public:
 };
 
 
-class Remote_node: public Printable{
+class Remote_node: public Api_frame{
 private:
 	Address64 	_dst_address;
 	uint8_t 	_cmd_opts;
 	uint8_t		_chksum;
-	Api_frame	_frame;
+	//Api_frame	_frame;
 
 public:
 	Remote_node(){
@@ -154,13 +156,13 @@ public:
 	Remote_node(uint8_t const *address);
 	Remote_node(Address64 address);
 	
-	void set_fid(uint8_t fid) { _frame.set_fid(fid);};
+	//void set_fid(uint8_t fid) { set_fid(fid);};
 // Overloaded index operator to allow getting and setting individual octets of the address
-    uint8_t operator[](int index) const { return _frame[index]; };
-    uint8_t& operator[](int index) { return _frame[index]; };
+    //uint8_t operator[](int index) const { return _frame[index]; };
+    //uint8_t& operator[](int index) { return _frame[index]; };
     
-    void clear() { _frame.clear(); }
-    virtual size_t length() const {return _frame.length() + 7; }
+    //void clear() { clear(); }
+    //virtual size_t length() const {return _frame.length() + 7; }
 	void 	set_cmd(uint8_t cmd ){ _cmd_opts = cmd; }
 	uint8_t checksum() const;
     virtual size_t printTo(Print& p) const;

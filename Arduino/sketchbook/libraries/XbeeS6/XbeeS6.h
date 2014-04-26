@@ -81,6 +81,7 @@ public:
 	uint8_t getSeqno() const ;
 
 	void setSeqno(uint8_t seqno) ;
+	void incSeqno();
 
 	uint8_t getSf() const ;
 
