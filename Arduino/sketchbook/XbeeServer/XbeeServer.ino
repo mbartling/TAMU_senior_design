@@ -104,6 +104,7 @@ void loop()
       for(i = 0; i < length; i++)
       {
         Uart.write(tx_buffer1[i]);
+        delayMicroseconds(100);
       }
       for(i = 0; i < length; i++)
       {
@@ -115,6 +116,7 @@ void loop()
       if(j == 0x7E) j++;
       tx_packet.clear_payload();
       tx_packet.push_back( (uint8_t) j);
+      tx_packet.incSeqno();
       Uart.flush();
       //Serial.println("response");
       while(Uart.available())

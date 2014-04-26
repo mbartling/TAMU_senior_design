@@ -44,7 +44,8 @@ void setup()
   //Serial.print(F("Starting time: "));
   //Serial.println(start_time);
 
-  tx_packet.set_Address(0x00000000C0A80164);  
+  tx_packet.set_Address(0x00000000C0A80164);
+  //tx_packet.set_Address(0x00000000C0A80165);
 
   tx_buffer1 = get_buffer();
 
@@ -336,6 +337,9 @@ void loop()
 }
 
 
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> 47d76550672e6b5a6caf474d3c41fff25b46538f

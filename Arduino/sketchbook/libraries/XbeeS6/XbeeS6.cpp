@@ -133,7 +133,7 @@ Tx64Packet::Tx64Packet() {
 	_API_frame_id = 0x00;
 	_seqno = 1;
 	memcpy(&_dst_address, &broadcastAddress, sizeof(broadcastAddress));
-	_tx_opts = 0x00;
+	_tx_opts = 0x01;
 }
 
 Tx64Packet::Tx64Packet(Address64_t* dst_address) {
@@ -142,7 +142,7 @@ Tx64Packet::Tx64Packet(Address64_t* dst_address) {
 	_API_frame_id = 0x00;
 	_seqno = 1;
 	memcpy(&_dst_address, dst_address, sizeof(*dst_address));
-	_tx_opts = 0x00;
+	_tx_opts = 0x01;
 }
 
 Tx64Packet::Tx64Packet(uint8_t seqno) {
@@ -151,7 +151,7 @@ Tx64Packet::Tx64Packet(uint8_t seqno) {
 	_API_frame_id = 0x00;
 	_seqno = seqno;
 	memcpy(&_dst_address, &broadcastAddress, sizeof(broadcastAddress));
-	_tx_opts = 0x00;
+	_tx_opts = 0x01;
 }
 
 Tx64Packet::Tx64Packet(uint8_t seqno, Address64_t* dst_address) {
@@ -160,7 +160,7 @@ Tx64Packet::Tx64Packet(uint8_t seqno, Address64_t* dst_address) {
 	_API_frame_id = 0x00;
 	_seqno = seqno;
 	memcpy(&_dst_address, dst_address, sizeof(*dst_address));
-	_tx_opts = 0x00;
+	_tx_opts = 0x01;
 }
 
 /**
@@ -280,6 +280,25 @@ uint8_t Tx64Packet::getSeqno() const {
 
 void Tx64Packet::setSeqno(uint8_t seqno) {
 	_seqno = seqno;
+}
+void Tx64Packet::incSeqno(){
+	switch((uint8_t)(_seqno + 1)){	
+		case 0x7E:
+			_seqno += 2;
+			break;
+		case 0x7D:
+			_seqno += 2;
+			break;
+		case 0x11:
+			_seqno += 2;
+			break;
+		case 0x13:
+			_seqno += 2;
+			break;
+		default:
+			_seqno++;
+			break;
+	}
 }
 
 uint8_t Tx64Packet::getSf() const {

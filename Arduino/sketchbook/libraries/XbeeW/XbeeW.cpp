@@ -145,8 +145,8 @@ uint8_t Remote_node::checksum() const
 	uint16_t chksum = 0;
 	int i;
 
-	chksum += _frame.get_fid();
-	chksum += _frame.get_seqno();
+	chksum += get_fid();
+	chksum += get_seqno();
 	chksum += _cmd_opts;
 	for (i = 0; i < 8; i++)
 	{
@@ -155,8 +155,8 @@ uint8_t Remote_node::checksum() const
 	i = 0;
 	while(i < 63)
 	{
-		if(_frame[i] == '\r' && _frame[i+1] == '\n') break;
-		chksum += _frame[i];
+		if(_payload[i] == '\r' && _payload[i+1] == '\n') break;
+		chksum += _payload[i];
 	}
 
 	chksum = 0xFF - (chksum & 0xFF);
@@ -169,44 +169,44 @@ size_t Remote_node::printTo(Print& p) const
 {
 	size_t n = 0;
 	int i;
-	uint16_t length = 9;
+	uint16_t lengthL = 9;
 	uint16_t lengthS;
 	uint8_t chksum = checksum();
-	length += _frame.length();
-	lengthS = ((length >> 8) | (length << 8));
+	lengthL += length();
+	lengthS = ((lengthL >> 8) | (lengthL << 8));
 	n += p.print(0x7E, BYTE);
 	n += p.print(lengthS, BYTE);
-	n += p.print(_frame.get_fid(), BYTE);
-	n += p.print(_frame.get_seqno(), BYTE);
+	n += p.print(get_fid(), BYTE);
+	n += p.print(get_seqno(), BYTE);
 
 	n += p.print(_cmd_opts, BYTE);
 	for (i = 0; i < 8; i++)
 	{
 		n  += p.print(_dst_address[i], BYTE); //_dst_address._address[i];
 	}
-	length = length - 11;
-	for( i = 0; i < length; i++)
+	lengthL = lengthL - 11;
+	for( i = 0; i < lengthL; i++)
 	{
-		switch(_frame[i])
+		switch(_payload[i])
 		{
 			case 0x7E:
 				n += p.print(0x7D ,BYTE);
-				n += p.print(_frame[i] ^ 0x20, BYTE);
+				n += p.print(_payload[i] ^ 0x20, BYTE);
 				break;
 			case 0x7D:
 				n += p.print(0x7D ,BYTE);
-				n += p.print(_frame[i], BYTE);
+				n += p.print(_payload[i], BYTE);
 				break;
 			case 0x11:
 				n += p.print(0x7D ,BYTE);
-				n += p.print(_frame[i] ^ 0x20, BYTE);
+				n += p.print(_payload[i] ^ 0x20, BYTE);
 				break;
 			case 0x13:
 				n += p.print(0x7D ,BYTE);
-				n += p.print(_frame[i] ^ 0x20, BYTE);
+				n += p.print(_payload[i] ^ 0x20, BYTE);
 				break;
 			default:
-				n += p.print(_frame[i], BYTE);
+				n += p.print(_payload[i], BYTE);
 				break;
 
 		}

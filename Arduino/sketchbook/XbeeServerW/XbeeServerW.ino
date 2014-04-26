@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <XbeeW.h>
-#include <string.h>
-#include <Time.h>
+//#include <string.h>
+//#include <Time.h>
 
 
 
@@ -18,10 +18,10 @@ const int led_pin = 11;  // 11=Teensy 2.0, 6=Teensy 1.0, 16=Benito
 const int led_on = HIGH;
 const int led_off = LOW;
 
-volatile time_t start_time;
-time_t current_time;
+//volatile time_t start_time;
+//time_t current_time;
 long previousMillis = 0;
-long interval = 1000; //in ms
+long interval = 50; //in ms
 
 void setup()
 {
@@ -33,15 +33,15 @@ void setup()
   pinMode(reset_pin, OUTPUT);
   Serial.begin(BAUD_RATE);
   Serial.println(F("Starting the Receiver!"));
-  second(start_time);
+  //second(start_time);
   Serial.print(F("Starting time: "));
-  Serial.println(start_time);
+  //Serial.println(start_time);
 
   tx_packet[0] = 0xDE;
   tx_packet[1] = 0xAD;
   tx_packet[2] = '\r';
   tx_packet[3] = '\n';
-  Serial.print(tx_packet);
+  
   Uart.begin(BAUD_RATE);
 
   Serial.println(F("======================="));
@@ -51,6 +51,7 @@ void setup()
   Serial.println(F("======================="));
   Uart.flush();				
   
+  Serial.print(tx_packet);
 }
 //https://www.pjrc.com/teensy/benchmark_usb_serial_receive.html
 int j = 0;
@@ -136,7 +137,7 @@ void loop()
       {
         c = Uart.read();
         //		Serial.write(c);
-        current_time = now();
+       // current_time = now();
         //Serial.print("current time: ");
         //Serial.println(current_time);
         if(c == 0x7E) Serial.println();
