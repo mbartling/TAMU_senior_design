@@ -28,7 +28,7 @@ const int led_off = LOW;
 //volatile time_t start_time;
 //time_t current_time;
 long previousMillis = 0;
-long interval = 50; //in ms
+long interval = 500; //in ms
 
 void setup()
 {
@@ -106,8 +106,8 @@ void loop()
       return; 
     }
     Uart.write(c);
-    digitalWrite(led_pin, led_on);
-    led_on_time = millis();
+    //digitalWrite(led_pin, led_on);
+    //led_on_time = millis();
     return;
   }
   /* Determine Server Configuration*/
@@ -125,6 +125,7 @@ void loop()
         for(i = 0; i < length; i++)
         {
           Uart.write(tx_buffer1[i]);
+          delayMicroseconds(5);
         }
         for(i = 0; i < length; i++)
         {
@@ -132,10 +133,15 @@ void loop()
           Serial.print(" ");
         }
         Serial.println(' ');
-        j++;
+        //j++;
+        
         tx_packet.clear_payload();
-        tx_packet.push_back( (uint8_t) j);
-        //Uart.flush();
+        tx_packet.incSeqno();
+        tx_packet.push_back( (uint8_t) 0xDE);
+        tx_packet.push_back( (uint8_t) 0xAD);
+        tx_packet.push_back( (uint8_t) 0xBE);
+        tx_packet.push_back( (uint8_t) 0xEF);
+        Uart.flush();
         //Serial.println(F("response"));
         while(Uart.available())
         {
@@ -144,8 +150,8 @@ void loop()
           Serial.print(" ");
         }
         Serial.println(F("EOR"));
-        //break;
-        return;
+        break;
+        //return;
 
       }
     case 4:
@@ -179,6 +185,7 @@ void loop()
                 for(i = 0; i < length; i++)
                 {
                   Uart.write(tx_buffer1[i]);
+                  delayMicroseconds(5);
                 }
                 for(i = 0; i < length; i++)
                 {
@@ -187,6 +194,8 @@ void loop()
                 }
 
                 tx_packet.clear_payload();
+                tx_packet.incSeqno();
+                Uart.flush();
                 while(Uart.available())
                 {
 
@@ -205,8 +214,8 @@ void loop()
 
         }// End if available
 
-        return;
-        //break;
+        //return;
+        break;
       }
       /*
     case 4:
@@ -269,10 +278,10 @@ void loop()
         {
           c = Uart.read();
           Serial.write(c);
-          digitalWrite(led_pin, led_on);
-          led_on_time = millis();
-          //break;
-          return;
+          //digitalWrite(led_pin, led_on);
+          //led_on_time = millis();
+          break;
+          //return;
         } 
       }
     case 3:
@@ -289,10 +298,10 @@ void loop()
           if(c == 0x7E) Serial.println();
           Serial.print(c, HEX);
           Serial.print(" ");
-          digitalWrite(led_pin, led_on);
-          led_on_time = millis();
-          return;
-          //break;
+          //digitalWrite(led_pin, led_on);
+          //led_on_time = millis();
+          //return;
+          break;
         } 
       }
     default: 
@@ -309,9 +318,9 @@ void loop()
     digitalWrite(reset_pin, HIGH);
   }
   prev_dtr = dtr;
-  if (millis() - led_on_time > 3) {
-    digitalWrite(led_pin, led_off);
-  }
+  //if (millis() - led_on_time > 3) {
+  //  digitalWrite(led_pin, led_off);
+  //}
   if (Serial.baud() != baud) {
     baud = Serial.baud();
     if (baud == 57600) {
@@ -336,10 +345,3 @@ void loop()
 
 }
 
-
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> 47d76550672e6b5a6caf474d3c41fff25b46538f

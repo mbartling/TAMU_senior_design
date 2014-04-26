@@ -283,6 +283,9 @@ void Tx64Packet::setSeqno(uint8_t seqno) {
 }
 void Tx64Packet::incSeqno(){
 	switch((uint8_t)(_seqno + 1)){	
+		case 0x00:
+			_seqno += 2;
+			break;
 		case 0x7E:
 			_seqno += 2;
 			break;
