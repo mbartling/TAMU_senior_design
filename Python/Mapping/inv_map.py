@@ -5,7 +5,7 @@ import numpy
 from numpy.linalg import inv
 
 DEBUGMODE = 1
-WINDOWS_MODE = 0
+WINDOWS_MODE = 1
 if DEBUGMODE == 1:
     #from mpl_toolkits.mplot3d import Axes3D
     import matplotlib.pyplot as plt
@@ -199,7 +199,7 @@ if DEBUGMODE == 1:
     plt.figure()
     gamemap = (weight*gamemap+gamemapFat)/(weight+1)
     gamemap = gamemap/numpy.max(numpy.max(gamemap))
-    im = plt.imshow(gamemap,interpolation='bicubic',origin='image', cmap=cm.jet)
+    im = plt.imshow(gamemap,interpolation='bicubic', cmap=cm.jet)
     plt.colorbar()
     plt.show()
 
