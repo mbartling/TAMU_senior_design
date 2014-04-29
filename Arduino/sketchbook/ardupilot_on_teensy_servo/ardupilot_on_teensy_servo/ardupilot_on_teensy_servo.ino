@@ -20,7 +20,8 @@ uint8_t transmit_buf[TRANSMIT_LENGTH];
 int num_packets;
 
 long previousMillis = 0;
-long interval = 50; //in ms
+long interval = 2000; //in ms
+
 void setup() {
     Serial.begin(57600);
     Uart.begin(58824);  //ardupilot
@@ -30,6 +31,10 @@ void setup() {
     last_lat = 0;
     last_lon = 0;
     received_buf_index = 0;
+//    transmit_buf_index = 0;
+//    tx_packet.set_Address(0x00000000c0a80166);
+//    tx_buf = get_buffer();
+    //transmit_request_packet_header(0xc0a80166);
     transmit_request_packet_header(0xffffffff);
     
     num_packets = 0;
@@ -37,19 +42,55 @@ void setup() {
 }
 
 void loop(){
-	int i =0;
-	for(i = 0; i < 2; i++)
-	{
-   	read_from_mavlink();
-   	if (lat != 0 && lon != 0){
-   	  last_lat = lat;
-   	  last_lon = lon;
-   	}
-   //if(read_from_xbee() == 1){
-      //transmit_buf[14] = received_buf[11];// last byte of received addr
-      //transmit_buf[15] = received_buf[12];// RSSI
-      transmit_buf[14] = 0xDE;// last byte of received addr
-      transmit_buf[15] = 0xAD;// RSSI
+   unsigned long currentMillis = millis();
+   
+   read_from_mavlink();
+   if (lat != 0 && lon != 0){
+//     Serial.print(lat);
+//     Serial.print(" ");
+//     Serial.println(lon);
+     last_lat = lat;
+     last_lon = lon;
+   }
+   if(read_from_xbee() == 1){
+     /*for(int i = 0; i < 16; i++){
+       Serial.print(received_buf[i], HEX);
+       Serial.print(" ");
+     }
+     Serial.println();
+     
+     Serial.print("received xbee packet ");
+     Serial.print(last_lat);
+     Serial.print(" ");
+     Serial.println(last_lon);*/
+
+     //read_from_mavlink();
+//     tx_packet.push_back(received_buf[11]);
+//     tx_packet.push_back(received_buf[12]);
+//     tx_packet.push_back(lat >> 24) ;
+//     tx_packet.push_back(lat >> 16);
+//     tx_packet.push_back(lat >> 8);
+//     tx_packet.push_back(lat);
+//     tx_packet.push_back(lon >> 24);
+//     tx_packet.push_back(lon >> 16);
+//     tx_packet.push_back(lon >> 8);
+//     tx_packet.push_back(lon);
+//     
+//     Serial.println("here");
+//     uint16_t length = tx_packet.prepare2send();
+//
+//     Serial.print("Packet: ");
+//     for(int i = 0; i < length; i++){
+//       Serial.print(tx_buf[i], HEX);
+//       Serial.print(" ");
+//      }
+//      Serial.println();
+//      tx_packet.clear_payload();
+      //Serial.print(lat);
+      //Serial.print(" ");
+      //Serial.println(lon);
+      transmit_buf[14] = received_buf[11];// last byte of received addr
+      transmit_buf[15] = received_buf[12];// RSSI
       transmit_buf[16] = servoPos & 0xFF;        // polarization
       transmit_buf[17] = last_lat >> 24;
       transmit_buf[18] = last_lat >> 16;
@@ -59,7 +100,6 @@ void loop(){
       transmit_buf[22] = last_lon >> 16;
       transmit_buf[23] = last_lon >> 8;
       transmit_buf[24] = last_lon;
-         //dump_xbee_buffer();
       calculate_checksum();
       /*for(int i = 0; i < TRANSMIT_LENGTH; i++){
         Serial.print(transmit_buf[i], HEX);
@@ -73,20 +113,27 @@ void loop(){
        digitalWrite(13, LOW);
        
        //Serial.print("servo pos: ");
-#if DEBUG_MODE
        Serial.print(servoPos);
        Serial.print(" ");
        //Serial.print("rssi: ");
        Serial.println(received_buf[12]);
-#endif
-       num_packets++;
-         //dump_xbee_buffer();
-     //  if (num_packets > 65){
-         turn_motor();
-         num_packets = 0;
-	 }
-         delay(2000);
-     //  }
+       
+       if(currentMillis-previousMillis > interval)
+       {
+          turn_motor();
+          previousMillis = currentMillis;
+       }
+       
+//       num_packets++;
+//       if (num_packets > 30){
+//         //Serial.println();
+//         //Serial.print("servo turned ");
+//         //Serial.println(servoPos);
+//         //Serial.println();
+//         num_packets = 0;
+//         delay(2000);
+//         //dump_xbee_buffer();
+//       }
    }
 }
 
@@ -99,14 +146,15 @@ void turn_motor(){
     servoPos = 0;
     myServo.write(servoPos); 
   }
-         //dump_xbee_buffer();
 }
 
-void dump_xbee_buffer(){
-  while(Serial2.available()){
+void dump_xbee_buffer()
+{
+  while(Serial2.available())
+  {
     Serial2.read();
   }
-}
+}//end dump_xbee_buffer
 
 int read_from_xbee(){
   char c;
