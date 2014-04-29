@@ -92,6 +92,7 @@
 		<configuration configurationName="Default">
 			<resource resourceType="PROJECT" workspacePath="/TAMU_senior_design"/>
 		</configuration>
+		<configuration configurationName="linux"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
 		<buildTargets>

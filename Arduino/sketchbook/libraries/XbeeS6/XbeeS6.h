@@ -3,16 +3,14 @@
 #include "Arduino.h"
 //#include <StandardCplusplus.h>
 #include <stdint.h>
-//#include <ostream>
+
 //#include <general_debug.h>
 #include <uVector.h>
 #include <string.h>
 
+// Change this size to fit your code: we used a size of 64 bytes
 #define TX_BUFFER_SIZE 512
 
-/* Separate the tx_buffer so we do not need to handle the streaming functions in the class*/
-//static uint8_t tx_buffer[TX_BUFFER_SIZE];
-//static uint8_t tx_buffer[TX_BUFFER_SIZE];
 typedef struct Address64
 {
 	uint8_t b0;

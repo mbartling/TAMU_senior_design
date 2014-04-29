@@ -1,7 +1,18 @@
+/**
+ * @file XbeeS6.cpp
+ * @Author Michael Bartling (michael.bartling15+AMP_RF@gmail.com)
+ * @date 2/1/2014
+ * @brief Dynamically allocated Xbee S6B packet code
+ *
+ */
+
 #include "Arduino.h"
 #include "XbeeS6.h"
-//#include <iterator>
-#define DEBUG_MODE 1
+
+/**
+ * Set Debug mode for system validation
+ */
+#define DEBUG_MODE 0
 #if DEBUG_MODE
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -23,13 +34,19 @@ enum {
 	LITTLE_ENDIAN
 };
 
-//tx_buffer[TX_BUFFER_SIZE];
-uint8_t tx_buffer[TX_BUFFER_SIZE];
 
+/*static */ uint8_t tx_buffer[TX_BUFFER_SIZE];
+
+/**
+ * @name get_buffer
+ * @brief get access to packet buffer
+ * @return
+ */
 uint8_t * get_buffer()
 {
 	return &tx_buffer[0];
 }
+
 /* This will help with debugging
  * We can use this to figure out bytes are being packed.
  */
@@ -51,7 +68,9 @@ int check_endianness()
 }
 
 /**
- * Set the destination address
+ * @name set_Address
+ *
+ * @brief Set the destination address
  */
 int Tx64Packet::set_Address(uint64_t new_address)
 {
@@ -82,6 +101,12 @@ int Tx64Packet::set_Address(uint64_t new_address)
 
 /**
  * Manually Calculate the checksum
+ * Checksum = 0xFF - (sum(bytes in api frame) & 0xFF)
+ * api frame = bytes between length and checksum
+ *
+ * Note: Our Teensy was saturating uint8_ts rather than mod 256, so we
+ * went with a larger int to hold all of the data before byte masking it.
+ *
  */
 int Tx64Packet::calc_chkSum()
 {
@@ -127,52 +152,64 @@ uint64_t Tx64Packet::get_Address()
 	return temp;
 }
 
+/**
+ * Constructors
+ */
 Tx64Packet::Tx64Packet() {
-	_sf = 0x7E;
-	_length = 11;
-	_API_frame_id = 0x00;
-	_seqno = 1;
+	_sf = 0x7E; 			//!< Start Frame
+	_length = 11;			//!< Initial TX64 Packet length
+	_API_frame_id = 0x00;	//!< TX64 Frame ID
+	_seqno = 1;				//!< Start at seqno > 0 to get tx status packet
 	memcpy(&_dst_address, &broadcastAddress, sizeof(broadcastAddress));
-	_tx_opts = 0x01;
+	_tx_opts = 0x01;		//!< Disable Ack
 }
 
 Tx64Packet::Tx64Packet(Address64_t* dst_address) {
-	_sf = 0x7E;
-	_length = 11;
-	_API_frame_id = 0x00;
-	_seqno = 1;
+	_sf = 0x7E;				//!< Start Frame
+	_length = 11;			//!< Initial TX64 Packet length
+	_API_frame_id = 0x00;	//!< TX64 Frame ID
+	_seqno = 1;				//!< Start at seqno > 0 to get tx status packet
 	memcpy(&_dst_address, dst_address, sizeof(*dst_address));
-	_tx_opts = 0x01;
+	_tx_opts = 0x01;		//!< Disable Ack
 }
 
 Tx64Packet::Tx64Packet(uint8_t seqno) {
-	_sf = 0x7E;
-	_length = 11;
-	_API_frame_id = 0x00;
-	_seqno = seqno;
+	_sf = 0x7E;				//!< Start Frame
+	_length = 11;			//!< Initial TX64 Packet length
+	_API_frame_id = 0x00;	//!< TX64 Frame ID
+	_seqno = seqno;			//!< Start at seqno > 0 to get tx status packet
 	memcpy(&_dst_address, &broadcastAddress, sizeof(broadcastAddress));
-	_tx_opts = 0x01;
+	_tx_opts = 0x01;		//!< Disable Ack
 }
 
 Tx64Packet::Tx64Packet(uint8_t seqno, Address64_t* dst_address) {
-	_sf = 0x7E;
-
-	_API_frame_id = 0x00;
-	_seqno = seqno;
+	_sf = 0x7E;				//!< Start Frame
+	//_length = 11;			//!< Initial TX64 Packet length
+	_API_frame_id = 0x00;	//!< TX64 Frame ID
+	_seqno = seqno;			//!< Start at seqno > 0 to get tx status packet
 	memcpy(&_dst_address, dst_address, sizeof(*dst_address));
-	_tx_opts = 0x01;
+	_tx_opts = 0x01;		//!< Disable Ack
 }
 
 /**
+ * @name packet_buf
+ * @brief form the packet
+ *
+ * @note We need to calculate the checksum before adding in the escape character handling
+ * escape characters are handled as insert 0x7D before escape character and xor escape character with 0x20
  * Can override this function for the std stream to trick the arduino into forming a packet
  * or we could write this to a global buffer or something.
  *
  * Another Option is to replace is stream with the arduino stream library
+ *
+ * consider making this function private
  */
 
 uint16_t Tx64Packet::packet_buf() const
 {
-	//uint64_t temp = packet.get_Address();
+	/*
+	 * Declare Variables
+	 */
 	uint16_t byte_cnt;
 	uint8_t temp_byte;
 	/* Need to byteswap the packet length first */
@@ -180,9 +217,12 @@ uint16_t Tx64Packet::packet_buf() const
 	temp = (_length >> 8) | (_length << 8);
 
 
-
+	/* Not the most efficient way of copying data to packetbuf
+	 * Had issues with teensy 3.0 moving this memory so brute forced it*/
 	memcpy(&tx_buffer[byte_cnt], &_sf			 , sizeof(_sf			    ) ) ; byte_cnt += sizeof(_sf			  );  //buffer += sizeof(packet->sf			);
 	memcpy(&tx_buffer[byte_cnt], &temp			 , sizeof(temp		    ) ) ; byte_cnt += sizeof(_length		  );  //buffer += sizeof(packet->length		);
+
+	/* All Bytes below this technically need to be checked for escape Characters TODO*/
 	memcpy(&tx_buffer[byte_cnt], &_API_frame_id  , sizeof(_API_frame_id   ) ) ; byte_cnt += sizeof(_API_frame_id );  //buffer += sizeof(packet->API_frame_id);  
 	memcpy(&tx_buffer[byte_cnt], &_seqno         , sizeof(_seqno		    ) ) ; byte_cnt += sizeof(_seqno		  );  //buffer += sizeof(packet->seqno		); 
 
@@ -197,6 +237,8 @@ uint16_t Tx64Packet::packet_buf() const
 	memcpy(&tx_buffer[byte_cnt], &_dst_address.b7, sizeof(_dst_address.b7))   ; byte_cnt += sizeof(_dst_address.b7); //buffer += sizeof(packet->dst_address.b7);
 
 	memcpy(&tx_buffer[byte_cnt], &_tx_opts, sizeof(_tx_opts)); byte_cnt += sizeof(_tx_opts);
+
+	/* Check Data for escape characters*/
 	for(int i = 0; i < _payload.size(); i++)
 	{
 		//		memcpy(&tx_buffer[byte_cnt], &(*it), sizeof(*it));
@@ -246,13 +288,16 @@ uint16_t Tx64Packet::packet_buf() const
 
 /**
  * Just a wrapper function
+ * lets increment the packet length each time we get a new byte
  */
 void Tx64Packet::push_back(uint8_t byteMe) {
 
 	_payload.push_back(byteMe);
 	_length += 1;
 }
-
+/*
+ * Getters and Setters
+ */
 uint8_t Tx64Packet::getApiFrameId() const {
 	return _API_frame_id;
 }
@@ -281,6 +326,13 @@ uint8_t Tx64Packet::getSeqno() const {
 void Tx64Packet::setSeqno(uint8_t seqno) {
 	_seqno = seqno;
 }
+/**
+ * @name incSeqno
+ * @brief increment the packet sequence number so we can distinguish packets
+ *
+ * for simplicity, we are ignoring the escape character sequence numbers as well as 0x00.
+ * 0x00 does not return a tx_status frame.
+ */
 void Tx64Packet::incSeqno(){
 	switch((uint8_t)(_seqno + 1)){	
 		case 0x00:
@@ -316,6 +368,11 @@ uint8_t Tx64Packet::getTxOpts() const {
 	return _tx_opts;
 }
 
+/**
+ * @name prepare2send
+ * @brief calculate the checksum and prepare the packet buffer
+ * @return number of bytes written to the packet buffer
+ */
 uint16_t Tx64Packet::prepare2send() {
 
 
@@ -324,6 +381,9 @@ uint16_t Tx64Packet::prepare2send() {
 
 }
 
+/**
+ * reset the uVector payload and packet length
+ */
 void Tx64Packet::clear_payload() {
 	_payload.clear();
 	_length = 11;
